@@ -1,0 +1,32 @@
+* Introduction
+
+** What is a compiler?
+
+- A compiler translates a program in a source language to a program in
+  a target language.
+- A compiler is distinct from an *interpreter*, which reads in a
+  program and then executes it directly, without emitting a
+  translation. This is also sometimes known as a *virtual
+  machine*. Languages like Python and Ruby are typically executed by
+  an interpreter that reads the source code directly.
+- Compilers and interpreters are closely related, and it is sometimes
+  possible to exchange one for the other. For example, Java compilers
+  translate Java source code into Java bytecode, which is an abstract
+  form of assembly language. Some implementations of the Java Virtual
+  Machine work as interpreters that execute one instruction at a
+  time. Others work by translating the bytecode into local machine
+  code, and then running the machine code directly. This is known as
+  just in time compiling or JIT.
+
+** Why should you study compilers ?
+
+- You will be a better programmer.
+- You can create tools for debugging and translating.
+- You can create new languages.
+- You can contribute to existing compilers.
+
+** What language should I use
+
+- Author thinks you should use C and use it to compile a C like
+  language which produces assembly for a widely used processor like
+  x86 or ARM.
