@@ -1,5 +1,11 @@
 * Introduction
 
+These are my notes for the book [[https://www3.nd.edu/~dthain/compilerbook/][Introduction to Compilers and Language
+Design]].
+
+The source repository for this website is [[https://github.com/psibi/compilers][here]]. Any pull requests,
+contributions welcome!
+
 ** What is a compiler?
 
 - A compiler translates a program in a source language to a program in
