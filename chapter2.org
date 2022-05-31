@@ -2,8 +2,8 @@
 
 ** The Compiler Toolchain
 
-todo: insert image
+[[./images/c2_compiler_toolchain.png]]
 
 ** Stages Within a Compiler
 
-todo: insert image
+[[./images/c2_compiler_stages.png]]
