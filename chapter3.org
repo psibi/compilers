@@ -16,7 +16,7 @@ Most languages will have tokens in these categories:
 ** A Hand-Made Scanner
 
 - The basic approach is to read one character at a time from the input
-  stream (fgetc(fp)) and then classify it.
+  stream (~fgetc(fp)~) and then classify it.
 - Hand Made scanner is usually verbose.
 - For a complex language with a large number of tokens, we need a more
   formalized approach to defining and scanning tokens. A formal
@@ -29,3 +29,27 @@ Most languages will have tokens in these categories:
   errors or ambiguities, and produce compact, high performance code.
 
 ** Regular Expressions
+
+- Regular expressions (REs) are a language for expressing patterns.
+- They were first described in the 1950s by Stephen Kleene.
+
+[[./images/c3_regular_expression.png]]
+
+Note that $\epsilon$ represents empty string.
+
+[[./images/c3_re_examples.png]]
+
+The syntax described so far is entirely sufficient to write any
+regular expression. But, it is also handy to have a few helper
+operations built on top of the basic syntax:
+
+[[./images/c3_re_helpers.png]]
+
+Regular expressions also obey several algebraic properties, which make
+it possible to re-arrange them as needed for efficiency or clarity:
+
+[[./images/c3_re_algebric_properties.png]]
+
+Some exaxmples of regular expressions:
+
+[[./images/c3_re_more_examples.png]]
