@@ -218,6 +218,36 @@ errors or ambiguities, and produce compact, high performance code.</li>
 expression. But, it is also handy to have a few helper operations built
 on top of the basic syntax:</p>
 <p><img src="./images/c3_re_helpers.png" alt="" /></p>
+<p>Regular expressions also obey several algebraic properties, which make
+it possible to re-arrange them as needed for efficiency or clarity:</p>
+<p><img src="./images/c3_re_algebric_properties.png" alt="" /></p>
+<p>Some exaxmples of regular expressions:</p>
+<p><img src="./images/c3_re_more_examples.png" alt="" /></p>
+<h2 id="finite-automata"><a class="header" href="#finite-automata">Finite Automata</a></h2>
+<ul>
+<li>A <strong>finite automaton (FA)</strong> is an abstract machine that can be used
+to represent certain forms of computation.</li>
+<li>Graphically, an FA consists of a number of states (represented by
+numbered circles) and a number of edges (represented by labeled
+arrows) between those states. Each edge is labeled with one or more
+symbols drawn from an alphabet Σ.</li>
+<li>The machine begins in a start state S0. For each input symbol
+presented to the FA, it moves to the state indicated by the edge
+with the same label as the input symbol.</li>
+<li>Some states of the FA are known as <strong>accepting states</strong> and are
+indicated by a double circle. If the FA is in an accepting state
+after all input is consumed, then we say that the FA <strong>accepts</strong> the
+input.</li>
+<li>We say that the FA <strong>rejects</strong> the input string if it ends in a
+non-accepting state, or if there is no edge corresponding to the
+current input symbol.</li>
+<li><strong>Every RE can be written as an FA, and vice versa.</strong></li>
+<li>For a simple regular expression, one can construct an FA by hand.</li>
+</ul>
+<p>FA for regular expression <code>for</code>:</p>
+<p><img src="./images/c3_fa_for.png" alt="" /></p>
+<p>FA for regular expression <code>[a-z][a-z0-9]+</code>:</p>
+<p><img src="./images/c3_fa_ex2.png" alt="" /></p>
 
                     </main>
 

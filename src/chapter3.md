@@ -44,3 +44,41 @@ expression. But, it is also handy to have a few helper operations built
 on top of the basic syntax:
 
 ![](./images/c3_re_helpers.png)
+
+Regular expressions also obey several algebraic properties, which make
+it possible to re-arrange them as needed for efficiency or clarity:
+
+![](./images/c3_re_algebric_properties.png)
+
+Some exaxmples of regular expressions:
+
+![](./images/c3_re_more_examples.png)
+
+## Finite Automata
+
+-   A **finite automaton (FA)** is an abstract machine that can be used
+    to represent certain forms of computation.
+-   Graphically, an FA consists of a number of states (represented by
+    numbered circles) and a number of edges (represented by labeled
+    arrows) between those states. Each edge is labeled with one or more
+    symbols drawn from an alphabet Σ.
+-   The machine begins in a start state S0. For each input symbol
+    presented to the FA, it moves to the state indicated by the edge
+    with the same label as the input symbol.
+-   Some states of the FA are known as **accepting states** and are
+    indicated by a double circle. If the FA is in an accepting state
+    after all input is consumed, then we say that the FA **accepts** the
+    input.
+-   We say that the FA **rejects** the input string if it ends in a
+    non-accepting state, or if there is no edge corresponding to the
+    current input symbol.
+-   **Every RE can be written as an FA, and vice versa.**
+-   For a simple regular expression, one can construct an FA by hand.
+
+FA for regular expression `for`:
+
+![](./images/c3_fa_for.png)
+
+FA for regular expression `[a-z][a-z0-9]+`:
+
+![](./images/c3_fa_ex2.png)
