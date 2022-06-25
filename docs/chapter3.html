@@ -178,7 +178,7 @@ on top of the basic syntax:</p>
 <p>Regular expressions also obey several algebraic properties, which make
 it possible to re-arrange them as needed for efficiency or clarity:</p>
 <p><img src="./images/c3_re_algebric_properties.png" alt="" /></p>
-<p>Some exaxmples of regular expressions:</p>
+<p>Some examples of regular expressions:</p>
 <p><img src="./images/c3_re_more_examples.png" alt="" /></p>
 <h2 id="finite-automata"><a class="header" href="#finite-automata">Finite Automata</a></h2>
 <ul>
@@ -205,6 +205,44 @@ current input symbol.</li>
 <p><img src="./images/c3_fa_for.png" alt="" /></p>
 <p>FA for regular expression <code>[a-z][a-z0-9]+</code>:</p>
 <p><img src="./images/c3_fa_ex2.png" alt="" /></p>
+<p>FA for regular expression <code>([1-9][0-9]*)|0</code></p>
+<p><a href="./images/c3_fa_ex3.png"><img src="./images/c3_fa_ex3.png" alt="" /></a></p>
+<h2 id="deterministic-finite-automata"><a class="header" href="#deterministic-finite-automata">Deterministic Finite Automata</a></h2>
+<ul>
+<li>Each of the above three examples is a <strong>deterministic finite
+automaton (DFA)</strong>.</li>
+<li>A DFA is a special case of an FA where every state has no more than
+one outgoing edge for a given symbol.</li>
+<li>Put another way, DFA has no ambiguity: For every combination of
+state and symbol there is exactly one choice of what to do next.</li>
+<li>DFA is easy to implement in software or hardware.</li>
+</ul>
+<h2 id="nondeterministic-finite-automata"><a class="header" href="#nondeterministic-finite-automata">Nondeterministic Finite Automata</a></h2>
+<ul>
+<li>The alternative to a DFA is a <strong>nondeterministic finite automaton
+(NFA)</strong>. A NFA is a perfectly valid FA, but it has an ambiguity that
+makes it somewhat more difficult to work with.</li>
+<li>Example: Regular expression <code>[a-z]*ing</code> which represents all
+lowercase ending in the suffix <code>ing</code>. It can be represented by the
+following automaton:</li>
+</ul>
+<p><a href="./images/c3_nfa_ex1.png"><img src="./images/c3_nfa_ex1.png" alt="" /></a></p>
+<p>There is a ambiguity in the above automamata because the word <code>sing</code>
+could proceed in two different ways:</p>
+<ul>
+<li>State 0 (s) -&gt; State 1 (i) -&gt; State 2 (n) -&gt; Stage 3 (g)</li>
+<li>State 0 (s) -&gt; State 0 (i) -&gt; State 0 (i) -&gt; State 0 (g)</li>
+</ul>
+<p>Both ways obey the transition rules, but one results in acceptance,
+while the other results in rejection.</p>
+<ul>
+<li>And the above NFA becomes complicated for a word like <code>singing</code></li>
+<li>An NFA can also have an <em>ϵ</em> (epsilon) transition, which represents
+an empty string. This transition can be taken without consuming any
+input symbols at all. For example, we could represent the regular
+expression <code>a*(ab|ac)</code> with this NFA:</li>
+</ul>
+<p><a href="./images/c3_nfa_ex2.png"><img src="./images/c3_nfa_ex2.png" alt="" /></a></p>
 
                     </main>
 

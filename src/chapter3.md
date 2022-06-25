@@ -50,7 +50,7 @@ it possible to re-arrange them as needed for efficiency or clarity:
 
 ![](./images/c3_re_algebric_properties.png)
 
-Some exaxmples of regular expressions:
+Some examples of regular expressions:
 
 ![](./images/c3_re_more_examples.png)
 
@@ -82,3 +82,45 @@ FA for regular expression `for`:
 FA for regular expression `[a-z][a-z0-9]+`:
 
 ![](./images/c3_fa_ex2.png)
+
+FA for regular expression `([1-9][0-9]*)|0`
+
+[![](./images/c3_fa_ex3.png)](./images/c3_fa_ex3.png)
+
+## Deterministic Finite Automata
+
+-   Each of the above three examples is a **deterministic finite
+    automaton (DFA)**.
+-   A DFA is a special case of an FA where every state has no more than
+    one outgoing edge for a given symbol.
+-   Put another way, DFA has no ambiguity: For every combination of
+    state and symbol there is exactly one choice of what to do next.
+-   DFA is easy to implement in software or hardware.
+
+## Nondeterministic Finite Automata
+
+-   The alternative to a DFA is a **nondeterministic finite automaton
+    (NFA)**. A NFA is a perfectly valid FA, but it has an ambiguity that
+    makes it somewhat more difficult to work with.
+-   Example: Regular expression `[a-z]*ing` which represents all
+    lowercase ending in the suffix `ing`. It can be represented by the
+    following automaton:
+
+[![](./images/c3_nfa_ex1.png)](./images/c3_nfa_ex1.png)
+
+There is a ambiguity in the above automamata because the word `sing`
+could proceed in two different ways:
+
+-   State 0 (s) -\> State 1 (i) -\> State 2 (n) -\> Stage 3 (g)
+-   State 0 (s) -\> State 0 (i) -\> State 0 (i) -\> State 0 (g)
+
+Both ways obey the transition rules, but one results in acceptance,
+while the other results in rejection.
+
+-   And the above NFA becomes complicated for a word like `singing`
+-   An NFA can also have an *ϵ* (epsilon) transition, which represents
+    an empty string. This transition can be taken without consuming any
+    input symbols at all. For example, we could represent the regular
+    expression `a*(ab|ac)` with this NFA:
+
+[![](./images/c3_nfa_ex2.png)](./images/c3_nfa_ex2.png)
