@@ -124,3 +124,140 @@ while the other results in rejection.
   the regular expression ~a*(ab|ac)~ with this NFA:
 
 [[./images/c3_nfa_ex2.png][./images/c3_nfa_ex2.png]]
+
+The above NFA also presents a variety of ambiguos choices:
+
+- From state zero, it could consume ~a~ and stay in state zero.
+- From state zero, it could consume $\epsilon$ to state one.
+- From state zero, it could consume $\epsilon$ to state four.
+
+There are two common ways to interpret this ambiguity:
+
+- The *crystal ball interpretation* says that NFA somehow knows what
+  the best choice is, by some means external to the NFA. Needless to
+  say, this isn't possible in a real implementation.
+- The *many-worlds interpretation* suggests that NFA exists in all
+  allowable states ~simultaneously~. When the input is complete, if
+  any of those states are accepting states, then the NFA has accepted
+  the input. This interpretation is more useful for constructing a
+  working NFA, or converting it to a DFA.
+
+Let us use the many-worlds interpretation on the example
+above. Suppose that the input string is ~aaac~.
+
+- Initial State: Initially the NFA is in state zero. Without consuming
+  any input, it could take an epsilon transition to states one or
+  four. So, we can consider it's initial state to be all of those
+  simultaneously.
+- Second State (after consuming ~a~): From state zero, it can consume
+  ~a~ and remain in State 0, or go to state 1 or 4 with epsilon
+  transition. And from state one (from initial state on step 1), it
+  can go to state 2. Similarly from state 4 (from initial step on step
+  1), it can go to state 5. So in the second state, it can be in state
+  0, 1, 4, 2 or 5 simultaneously.
+
+NFA would traverse these states untill accepting the complete string
+~aaac~:
+
+[[./images/c3_nfa_states.png][./images/c3_nfa_states.png]]
+
+- In principal once can implement an NFA in software or hardware by
+  simply keeping track of all of the possible states. But it is
+  inefficient.
+- A better approach is to convert NFA into an equivalent DFA.
+
+* Conversion Algorithms
+
+- For every RE, there is an FA, and vice versa.
+- DFA is by far the most straightfoward of the three to implement in
+  software.
+
+[[./images/c3_relations.png][./images/c3_relations.png]]
+
+** Converting REs to NFAs
+
+- We follow the same inductive definition of regular expression as
+  given earlier. We define automata corresponding to base cases of REs:
+
+[[./images/c3_re_to_fa_1.png][./images/c3_re_to_fa_1.png]]
+
+- If we write the concatenation of ~A~ and ~B~ as ~AB~, then the
+  corresponding NFA is simply ~A~ and ~B~ connected by an $\epsilon$
+  transition.
+
+[[./images/c3_re_to_fa_2.png][./images/c3_re_to_fa_2.png]]
+
+- In a similar fashion, the alternation of ~A~ and ~B~ written as
+  ~A|B~ can be expressed as two automata joined by common starting and
+  accepting nodes, all connected by $\epsilon$ transitions
+
+[[./images/c3_re_to_fa_3.png][./images/c3_re_to_fa_3.png]]
+
+- Finall, the Kleene closure ~A*~ is constructed by taking the
+  automaton for ~A~, adding starting and accepting nodes, then adding
+  $\epsilon$ transitions to allow zero or more repetitions:
+
+[[./images/c3_re_to_fa_4.png][./images/c3_re_to_fa_4.png]]
+
+*** Example: Convert RE ~a(cat|cow)*~ to NFA
+
+- Step 1: Construct NFA for ~cat~ and ~cow~ (the innermost expression)
+
+[[./images/c3_re_to_fa_eg1_s1.png][./images/c3_re_to_fa_eg1_s1.png]]
+
+- Step 2: Construct NFA for ~cat|cow~
+
+[[./images/c3_re_to_fa_eg1_s2.png][./images/c3_re_to_fa_eg1_s2.png]]
+
+- Step 3: Construct NFA for Kleene closure ~(cat|cow)*~
+
+[[./images/c3_re_to_fa_eg1_s3.png][./images/c3_re_to_fa_eg1_s3.png]]
+
+- Step 4: Construct NFA for RE ~a(cat|cow)*~
+
+[[./images/c3_re_to_fa_eg1_s4.png][./images/c3_re_to_fa_eg1_s4.png]]
+
+Observations from the above example:
+
+- It's complex and contains large number of epsilon transitions.
+- Could be impractical to implement for a complete language that could
+  end up having thousands of states.
+- Instead, we can convert NFA into an equivalent DFA.
+
+** Converting NFAs to DFAs
+
+- The technique to convert any NFA into an equivalent DFA is called
+  *subset construction*.
+- Basic idea is to create a DFA such that each state in the DFA
+  corresponds to multiple states in the NFA, according to the
+  ~many-worlds~ interpretation.
+
+[[./images/c3_epsilon_closure.png][./images/c3_epsilon_closure.png]]
+
+[[./images/c3_subet_algorithm.png][./images/c3_subet_algorithm.png]]
+
+Example of converting NFA to DFA for the regualr expression which we
+saw previously: ~a(cat|cow)*~
+
+[[./images/c3_nfa_to_dfa.png][./images/c3_nfa_to_dfa.png]]
+
+Before diving into each steps, let's see a concrete example of epsilon
+closure using the above example.
+
+$\epsilon$-closure$(N_o)$ = $\{ N_o \}$ because $N_o$ is the only state that
+is reachable from NFA state $N_o$ by zero or more $\epsilon$
+transitions.
+
+Each steps of the algorithm:
+
+[[./images/c3_nfa_to_dfa_step1.png][./images/c3_nfa_to_dfa_step1.png]]
+
+[[./images/c3_nfa_to_dfa_step2.png][./images/c3_nfa_to_dfa_step2.png]]
+
+** Minimizing DFAs
+
+- Large DFAs will consume a lot of memory.
+- We can apply Hopcroft's algorithm to shrink a DFA into a smaller
+  DFA.
+
+[[./images/c3_minimization_algo.png][./images/c3_minimization_algo.png]]

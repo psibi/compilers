@@ -243,6 +243,130 @@ input symbols at all. For example, we could represent the regular
 expression <code>a*(ab|ac)</code> with this NFA:</li>
 </ul>
 <p><a href="./images/c3_nfa_ex2.png"><img src="./images/c3_nfa_ex2.png" alt="" /></a></p>
+<p>The above NFA also presents a variety of ambiguos choices:</p>
+<ul>
+<li>From state zero, it could consume <code>a</code> and stay in state zero.</li>
+<li>From state zero, it could consume <em>ϵ</em> to state one.</li>
+<li>From state zero, it could consume <em>ϵ</em> to state four.</li>
+</ul>
+<p>There are two common ways to interpret this ambiguity:</p>
+<ul>
+<li>The <strong>crystal ball interpretation</strong> says that NFA somehow knows what
+the best choice is, by some means external to the NFA. Needless to
+say, this isn't possible in a real implementation.</li>
+<li>The <strong>many-worlds interpretation</strong> suggests that NFA exists in all
+allowable states <code>simultaneously</code>. When the input is complete, if
+any of those states are accepting states, then the NFA has accepted
+the input. This interpretation is more useful for constructing a
+working NFA, or converting it to a DFA.</li>
+</ul>
+<p>Let us use the many-worlds interpretation on the example above. Suppose
+that the input string is <code>aaac</code>.</p>
+<ul>
+<li>Initial State: Initially the NFA is in state zero. Without consuming
+any input, it could take an epsilon transition to states one or
+four. So, we can consider it's initial state to be all of those
+simultaneously.</li>
+<li>Second State (after consuming <code>a</code>): From state zero, it can consume
+<code>a</code> and remain in State 0, or go to state 1 or 4 with epsilon
+transition. And from state one (from initial state on step 1), it
+can go to state 2. Similarly from state 4 (from initial step on step
+1), it can go to state 5. So in the second state, it can be in state
+0, 1, 4, 2 or 5 simultaneously.</li>
+</ul>
+<p>NFA would traverse these states untill accepting the complete string
+<code>aaac</code>:</p>
+<p><a href="./images/c3_nfa_states.png"><img src="./images/c3_nfa_states.png" alt="" /></a></p>
+<ul>
+<li>In principal once can implement an NFA in software or hardware by
+simply keeping track of all of the possible states. But it is
+inefficient.</li>
+<li>A better approach is to convert NFA into an equivalent DFA.</li>
+</ul>
+<h1 id="conversion-algorithms"><a class="header" href="#conversion-algorithms">Conversion Algorithms</a></h1>
+<ul>
+<li>For every RE, there is an FA, and vice versa.</li>
+<li>DFA is by far the most straightfoward of the three to implement in
+software.</li>
+</ul>
+<p><a href="./images/c3_relations.png"><img src="./images/c3_relations.png" alt="" /></a></p>
+<h2 id="converting-res-to-nfas"><a class="header" href="#converting-res-to-nfas">Converting REs to NFAs</a></h2>
+<ul>
+<li>We follow the same inductive definition of regular expression as
+given earlier. We define automata corresponding to base cases of
+REs:</li>
+</ul>
+<p><a href="./images/c3_re_to_fa_1.png"><img src="./images/c3_re_to_fa_1.png" alt="" /></a></p>
+<ul>
+<li>If we write the concatenation of <code>A</code> and <code>B</code> as <code>AB</code>, then the
+corresponding NFA is simply <code>A</code> and <code>B</code> connected by an <em>ϵ</em>
+transition.</li>
+</ul>
+<p><a href="./images/c3_re_to_fa_2.png"><img src="./images/c3_re_to_fa_2.png" alt="" /></a></p>
+<ul>
+<li>In a similar fashion, the alternation of <code>A</code> and <code>B</code> written as
+<code>A|B</code> can be expressed as two automata joined by common starting and
+accepting nodes, all connected by <em>ϵ</em> transitions</li>
+</ul>
+<p><a href="./images/c3_re_to_fa_3.png"><img src="./images/c3_re_to_fa_3.png" alt="" /></a></p>
+<ul>
+<li>Finall, the Kleene closure <code>A*</code> is constructed by taking the
+automaton for <code>A</code>, adding starting and accepting nodes, then adding
+<em>ϵ</em> transitions to allow zero or more repetitions:</li>
+</ul>
+<p><a href="./images/c3_re_to_fa_4.png"><img src="./images/c3_re_to_fa_4.png" alt="" /></a></p>
+<h3 id="example-convert-re-acatcow-to-nfa"><a class="header" href="#example-convert-re-acatcow-to-nfa">Example: Convert RE <code>a(cat|cow)*</code> to NFA</a></h3>
+<ul>
+<li>Step 1: Construct NFA for <code>cat</code> and <code>cow</code> (the innermost expression)</li>
+</ul>
+<p><a href="./images/c3_re_to_fa_eg1_s1.png"><img src="./images/c3_re_to_fa_eg1_s1.png" alt="" /></a></p>
+<ul>
+<li>Step 2: Construct NFA for <code>cat|cow</code></li>
+</ul>
+<p><a href="./images/c3_re_to_fa_eg1_s2.png"><img src="./images/c3_re_to_fa_eg1_s2.png" alt="" /></a></p>
+<ul>
+<li>Step 3: Construct NFA for Kleene closure <code>(cat|cow)*</code></li>
+</ul>
+<p><a href="./images/c3_re_to_fa_eg1_s3.png"><img src="./images/c3_re_to_fa_eg1_s3.png" alt="" /></a></p>
+<ul>
+<li>Step 4: Construct NFA for RE <code>a(cat|cow)*</code></li>
+</ul>
+<p><a href="./images/c3_re_to_fa_eg1_s4.png"><img src="./images/c3_re_to_fa_eg1_s4.png" alt="" /></a></p>
+<p>Observations from the above example:</p>
+<ul>
+<li>It's complex and contains large number of epsilon transitions.</li>
+<li>Could be impractical to implement for a complete language that could
+end up having thousands of states.</li>
+<li>Instead, we can convert NFA into an equivalent DFA.</li>
+</ul>
+<h2 id="converting-nfas-to-dfas"><a class="header" href="#converting-nfas-to-dfas">Converting NFAs to DFAs</a></h2>
+<ul>
+<li>The technique to convert any NFA into an equivalent DFA is called
+<strong>subset construction</strong>.</li>
+<li>Basic idea is to create a DFA such that each state in the DFA
+corresponds to multiple states in the NFA, according to the
+<code>many-worlds</code> interpretation.</li>
+</ul>
+<p><a href="./images/c3_epsilon_closure.png"><img src="./images/c3_epsilon_closure.png" alt="" /></a></p>
+<p><a href="./images/c3_subet_algorithm.png"><img src="./images/c3_subet_algorithm.png" alt="" /></a></p>
+<p>Example of converting NFA to DFA for the regualr expression which we saw
+previously: <code>a(cat|cow)*</code></p>
+<p><a href="./images/c3_nfa_to_dfa.png"><img src="./images/c3_nfa_to_dfa.png" alt="" /></a></p>
+<p>Before diving into each steps, let's see a concrete example of epsilon
+closure using the above example.</p>
+<p><em>ϵ</em>-closure(<em>N</em><sub><em>o</em></sub>) = {<em>N</em><sub><em>o</em></sub>} because
+<em>N</em><sub><em>o</em></sub> is the only state that is reachable from NFA state
+<em>N</em><sub><em>o</em></sub> by zero or more <em>ϵ</em> transitions.</p>
+<p>Each steps of the algorithm:</p>
+<p><a href="./images/c3_nfa_to_dfa_step1.png"><img src="./images/c3_nfa_to_dfa_step1.png" alt="" /></a></p>
+<p><a href="./images/c3_nfa_to_dfa_step2.png"><img src="./images/c3_nfa_to_dfa_step2.png" alt="" /></a></p>
+<h2 id="minimizing-dfas"><a class="header" href="#minimizing-dfas">Minimizing DFAs</a></h2>
+<ul>
+<li>Large DFAs will consume a lot of memory.</li>
+<li>We can apply Hopcroft's algorithm to shrink a DFA into a smaller
+DFA.</li>
+</ul>
+<p><a href="./images/c3_minimization_algo.png"><img src="./images/c3_minimization_algo.png" alt="" /></a></p>
 
                     </main>
 
