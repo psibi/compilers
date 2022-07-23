@@ -76,7 +76,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="chapter1.html"><strong aria-hidden="true">1.</strong> Chapter 1: Introduction</a></li><li class="chapter-item expanded "><a href="chapter2.html"><strong aria-hidden="true">2.</strong> Chapter 2: A Quick Tour</a></li><li class="chapter-item expanded "><a href="chapter3.html"><strong aria-hidden="true">3.</strong> Chapter 3: Scanning</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="chapter1.html"><strong aria-hidden="true">1.</strong> Chapter 1: Introduction</a></li><li class="chapter-item expanded "><a href="chapter2.html"><strong aria-hidden="true">2.</strong> Chapter 2: A Quick Tour</a></li><li class="chapter-item expanded "><a href="chapter3.html"><strong aria-hidden="true">3.</strong> Chapter 3: Scanning</a></li><li class="chapter-item expanded "><a href="chapter4.html"><strong aria-hidden="true">4.</strong> Chapter 4: Parsing</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -410,6 +410,132 @@ closure using the above example.</p>
 DFA.</li>
 </ul>
 <p><a href="./images/c3_minimization_algo.png"><img src="./images/c3_minimization_algo.png" alt="" /></a></p>
+<p><a href="./images/c3_minimize_eg1_1.png"><img src="./images/c3_minimize_eg1_1.png" alt="" /></a></p>
+<p>Observations:</p>
+<ul>
+<li>If we are in super-state (1,2,3,4) then an input of <code>a</code> always goes
+to state 2, which keeps us within the super-state. So, this DFA is
+consistent with respect to <code>a</code>.</li>
+<li>From super-state (1,2,3,4) an input of <code>b</code> can either stay within
+the super-state or go to super-state (5). So, the DFA is
+inconsistent with respect to <code>b</code>.</li>
+</ul>
+<p><a href="./images/c3_minimize_eg1_2.png"><img src="./images/c3_minimize_eg1_2.png" alt="" /></a></p>
+<p>Observations:</p>
+<ul>
+<li>We observe that super-state 1,2,3 is consistent with respect to <code>a</code>.</li>
+<li>But not consistent with respect to <code>b</code> because it can either lead to
+state 3 or state 4.</li>
+<li>We attempt to fix this by splitting out state 2 into its own
+super-state, yielding this DFA:</li>
+</ul>
+<p><a href="./images/c3_minimize_eg1_3.png"><img src="./images/c3_minimize_eg1_3.png" alt="" /></a></p>
+<h1 id="limits-of-finite-automata"><a class="header" href="#limits-of-finite-automata">Limits of Finite Automata</a></h1>
+<ul>
+<li>Not sufficient to analyze all of the structures in a problem.</li>
+<li>Designing a finite automaton to match an <strong>arbitrary</strong> number of
+nested parenthesis is impractical.</li>
+<li>So, we limit ourselves to using regular expressions and finite
+automata for the narrow purpose of identifying the words and symbols
+within a problem.</li>
+</ul>
+<h1 id="using-a-scanner-generator"><a class="header" href="#using-a-scanner-generator">Using a Scanner Generator</a></h1>
+<ul>
+<li>The program <strong>Lex</strong> developed at AT&amp;T was one of the earliest
+examples of a scanner generator.</li>
+<li>Vern Paxson translated Lex into the C language to create <strong>Flex</strong>.</li>
+</ul>
+<p><a href="./images/c3_flex_struct.png"><img src="./images/c3_flex_struct.png" alt="" /></a></p>
+<p>To use Flex, we write a specification of the scanner that is a mixture
+of regular expressions, fragments of C code, and some specialized
+directives. The Flex program itself consumes the specification and
+produces regular C code that can then be compiled in the normal way.</p>
+<p>A peculiar requirement of Flex is that we must define a function
+<code>yywrap()</code> which returns 1 to indicate that the input is complete at the
+end of the file. If we wanted to continue scanning in another file, then
+<code>yywrap()</code> would open the next file and return 0.</p>
+<pre><code class="language-bash">ls /
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="parsing"><a class="header" href="#parsing">Parsing</a></h1>
+<h1 id="overview"><a class="header" href="#overview">Overview</a></h1>
+<ul>
+<li>To parse a computer program, we must first describe the form of
+valid sentences in a language. This formal statement is known as a
+context free grammar (CFG). Because they allow for recursion, CFGs
+are more powerful than regular expressions and can express a richer
+set of structures.</li>
+<li>LL(1) grammars are CFGs that can be evaluated by considering only
+the current rule and next token in the input stream. This property
+makes it easy to write a hand-coded parser known as a recursive
+descent parser.</li>
+<li>LR(1) grammars are more general and more powerful than LL(1). Nearly
+all useful programming languages can be written in LR(1) form.
+However, the parsing algorithm for LR(1) grammars is more complex
+and usually cannot be written by hand. Instead, it is common to use
+a parser generator that will accept an LR(1) grammar and
+automatically generate the parsing code.</li>
+</ul>
+<h1 id="context-free-grammars"><a class="header" href="#context-free-grammars">Context Free Grammars</a></h1>
+<h2 id="terminal"><a class="header" href="#terminal">Terminal</a></h2>
+<ul>
+<li>A <strong>terminal</strong> is a discrete symbol that can appear in the language,
+otherwise known as a <strong>token</strong> from the previous chapter.</li>
+<li>Examples: keywords, operators and identifiers.</li>
+<li>Convention: lower-case letters to represent terminals.</li>
+</ul>
+<h2 id="non-terminal"><a class="header" href="#non-terminal">Non terminal</a></h2>
+<ul>
+<li>A <strong>non-terminal</strong> represents a structure that can occur in a
+language, but is not a literal symbol.</li>
+<li>Examples: declarations, statements and expressions.</li>
+<li>Convention: Upper-case letters to represent non terminals: <code>P</code> for
+programs, <code>S</code> for statement, <code>E</code> for expression etc.</li>
+</ul>
+<h2 id="sentence"><a class="header" href="#sentence">Sentence</a></h2>
+<ul>
+<li>A <strong>sentence</strong> is a valid sequence of terminals in a language.</li>
+</ul>
+<h2 id="sentential-form"><a class="header" href="#sentential-form">Sentential form</a></h2>
+<ul>
+<li>A <strong>sentential form</strong> is a valid sequence of terminals and non
+terminals.</li>
+<li>Convention: Greek symbols to represent sentential forms. Example:
+<em>α</em>, <em>β</em> and <em>γ</em> to represent possibly mixed sequence of terminals
+and non-terminals. We will use a seqence like
+<em>Y</em><sub>1</sub><em>Y</em><sub>2</sub>...<em>Y</em><sub><em>n</em></sub> to indicate the
+individual symbols in a sentential form: <em>Y</em><sub><em>i</em></sub> may
+either be a terminal or non terminal.</li>
+</ul>
+<h2 id="context-free-grammar-cfg"><a class="header" href="#context-free-grammar-cfg">Context Free Grammar (CFG)</a></h2>
+<ul>
+<li>A <strong>CFG</strong> is a list of <strong>rules</strong> that formally describe the
+allowable sentences in a language.</li>
+<li>The left hand side of each rule is always a single non-terminal.</li>
+<li>The right hand side of a rule is a <strong>sentential form</strong> that
+describes an allowable form of that non-terminal.</li>
+<li>Example rule: <code>A -&gt; xXy</code> indicates that the non-terminal <code>A</code>
+represents a terminal <code>x</code> followed by a non-terminal <code>X</code> and a
+terminal <code>y</code>.</li>
+<li>The right hand side of a rule can be <em>ϵ</em> to indicate that the rule
+produces nothing.</li>
+<li>The first rule is special: it is the top level definition of
+aprogram and it's non terminal is known as the <strong>start symbol</strong></li>
+</ul>
+<p>Sample CFG describing expressions involving addition, integers and
+identifiers:</p>
+<p><a href="./images/c4_g2.png"><img src="./images/c4_g2.png" alt="" /></a></p>
+<h2 id="deriving-sentences"><a class="header" href="#deriving-sentences">Deriving Sentences</a></h2>
+<ul>
+<li>Each grammar describes a (possibly infinite) set of sentences, which
+is known as the <strong>language</strong> of the grammar.</li>
+<li>To prove that a given sentence is a member of that language, we must
+show that there exists a sequence of rule applications that connects
+the start symbol with the desired sentence.</li>
+<li>A sequence of rule applications is known as a <strong>derivation</strong> and a
+double arrow (⇒) is used to show that one sentential form is equal
+to another by applying a given rule. Example: E ⇒ int by applying
+rule 4 of grammer G2.</li>
+</ul>
 
                     </main>
 

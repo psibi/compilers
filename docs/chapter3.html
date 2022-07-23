@@ -75,7 +75,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="chapter1.html"><strong aria-hidden="true">1.</strong> Chapter 1: Introduction</a></li><li class="chapter-item expanded "><a href="chapter2.html"><strong aria-hidden="true">2.</strong> Chapter 2: A Quick Tour</a></li><li class="chapter-item expanded "><a href="chapter3.html" class="active"><strong aria-hidden="true">3.</strong> Chapter 3: Scanning</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="chapter1.html"><strong aria-hidden="true">1.</strong> Chapter 1: Introduction</a></li><li class="chapter-item expanded "><a href="chapter2.html"><strong aria-hidden="true">2.</strong> Chapter 2: A Quick Tour</a></li><li class="chapter-item expanded "><a href="chapter3.html" class="active"><strong aria-hidden="true">3.</strong> Chapter 3: Scanning</a></li><li class="chapter-item expanded "><a href="chapter4.html"><strong aria-hidden="true">4.</strong> Chapter 4: Parsing</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -367,6 +367,52 @@ closure using the above example.</p>
 DFA.</li>
 </ul>
 <p><a href="./images/c3_minimization_algo.png"><img src="./images/c3_minimization_algo.png" alt="" /></a></p>
+<p><a href="./images/c3_minimize_eg1_1.png"><img src="./images/c3_minimize_eg1_1.png" alt="" /></a></p>
+<p>Observations:</p>
+<ul>
+<li>If we are in super-state (1,2,3,4) then an input of <code>a</code> always goes
+to state 2, which keeps us within the super-state. So, this DFA is
+consistent with respect to <code>a</code>.</li>
+<li>From super-state (1,2,3,4) an input of <code>b</code> can either stay within
+the super-state or go to super-state (5). So, the DFA is
+inconsistent with respect to <code>b</code>.</li>
+</ul>
+<p><a href="./images/c3_minimize_eg1_2.png"><img src="./images/c3_minimize_eg1_2.png" alt="" /></a></p>
+<p>Observations:</p>
+<ul>
+<li>We observe that super-state 1,2,3 is consistent with respect to <code>a</code>.</li>
+<li>But not consistent with respect to <code>b</code> because it can either lead to
+state 3 or state 4.</li>
+<li>We attempt to fix this by splitting out state 2 into its own
+super-state, yielding this DFA:</li>
+</ul>
+<p><a href="./images/c3_minimize_eg1_3.png"><img src="./images/c3_minimize_eg1_3.png" alt="" /></a></p>
+<h1 id="limits-of-finite-automata"><a class="header" href="#limits-of-finite-automata">Limits of Finite Automata</a></h1>
+<ul>
+<li>Not sufficient to analyze all of the structures in a problem.</li>
+<li>Designing a finite automaton to match an <strong>arbitrary</strong> number of
+nested parenthesis is impractical.</li>
+<li>So, we limit ourselves to using regular expressions and finite
+automata for the narrow purpose of identifying the words and symbols
+within a problem.</li>
+</ul>
+<h1 id="using-a-scanner-generator"><a class="header" href="#using-a-scanner-generator">Using a Scanner Generator</a></h1>
+<ul>
+<li>The program <strong>Lex</strong> developed at AT&amp;T was one of the earliest
+examples of a scanner generator.</li>
+<li>Vern Paxson translated Lex into the C language to create <strong>Flex</strong>.</li>
+</ul>
+<p><a href="./images/c3_flex_struct.png"><img src="./images/c3_flex_struct.png" alt="" /></a></p>
+<p>To use Flex, we write a specification of the scanner that is a mixture
+of regular expressions, fragments of C code, and some specialized
+directives. The Flex program itself consumes the specification and
+produces regular C code that can then be compiled in the normal way.</p>
+<p>A peculiar requirement of Flex is that we must define a function
+<code>yywrap()</code> which returns 1 to indicate that the input is complete at the
+end of the file. If we wanted to continue scanning in another file, then
+<code>yywrap()</code> would open the next file and return 0.</p>
+<pre><code class="language-bash">ls /
+</code></pre>
 
                     </main>
 
@@ -374,6 +420,9 @@ DFA.</li>
                         <!-- Mobile navigation buttons -->
                             <a rel="prev" href="chapter2.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
+                            </a>
+                            <a rel="next" href="chapter4.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
                             </a>
                         <div style="clear: both"></div>
                     </nav>
@@ -383,6 +432,9 @@ DFA.</li>
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
                     <a rel="prev" href="chapter2.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
+                    </a>
+                    <a rel="next" href="chapter4.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
 

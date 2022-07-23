@@ -262,3 +262,57 @@ Each steps of the algorithm:
     DFA.
 
 [![](./images/c3_minimization_algo.png)](./images/c3_minimization_algo.png)
+
+[![](./images/c3_minimize_eg1_1.png)](./images/c3_minimize_eg1_1.png)
+
+Observations:
+
+-   If we are in super-state (1,2,3,4) then an input of `a` always goes
+    to state 2, which keeps us within the super-state. So, this DFA is
+    consistent with respect to `a`.
+-   From super-state (1,2,3,4) an input of `b` can either stay within
+    the super-state or go to super-state (5). So, the DFA is
+    inconsistent with respect to `b`.
+
+[![](./images/c3_minimize_eg1_2.png)](./images/c3_minimize_eg1_2.png)
+
+Observations:
+
+-   We observe that super-state 1,2,3 is consistent with respect to `a`.
+-   But not consistent with respect to `b` because it can either lead to
+    state 3 or state 4.
+-   We attempt to fix this by splitting out state 2 into its own
+    super-state, yielding this DFA:
+
+[![](./images/c3_minimize_eg1_3.png)](./images/c3_minimize_eg1_3.png)
+
+# Limits of Finite Automata
+
+-   Not sufficient to analyze all of the structures in a problem.
+-   Designing a finite automaton to match an **arbitrary** number of
+    nested parenthesis is impractical.
+-   So, we limit ourselves to using regular expressions and finite
+    automata for the narrow purpose of identifying the words and symbols
+    within a problem.
+
+# Using a Scanner Generator
+
+-   The program **Lex** developed at AT&T was one of the earliest
+    examples of a scanner generator.
+-   Vern Paxson translated Lex into the C language to create **Flex**.
+
+[![](./images/c3_flex_struct.png)](./images/c3_flex_struct.png)
+
+To use Flex, we write a specification of the scanner that is a mixture
+of regular expressions, fragments of C code, and some specialized
+directives. The Flex program itself consumes the specification and
+produces regular C code that can then be compiled in the normal way.
+
+A peculiar requirement of Flex is that we must define a function
+`yywrap()` which returns 1 to indicate that the input is complete at the
+end of the file. If we wanted to continue scanning in another file, then
+`yywrap()` would open the next file and return 0.
+
+``` bash
+ls /
+```

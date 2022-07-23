@@ -311,19 +311,6 @@ A peculiar requirement of Flex is that we must define a function
 the end of the file. If we wanted to continue scanning in another
 file, then ~yywrap()~ would open the next file and return 0.
 
-#+begin_src bison :tangle "./scanner.flex"
-%{
-#include "token.h"
-%}
-DIGIT  [0-9]
-LETTER [a-zA-Z]
-%%
-(" "|\t|\n) /* skip whitespace */
-\+        { return TOKEN_ADD; }
-while     { return TOKEN_WHILE; }
-{LETTER}+ { return TOKEN_IDENT; }
-{DIGIT}+  { return TOKEN_NUMBER; }
-.         { return TOKEN_ERROR; }
-%%
-int yywrap() { return 1; }
+#+begin_src sh :results value verbatim output
+ls /
 #+end_src

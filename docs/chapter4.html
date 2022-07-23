@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Chapter 1: Introduction - Introduction to Compilers and Language Design</title>
+        <title>Chapter 4: Parsing - Introduction to Compilers and Language Design</title>
         <!-- Custom HTML head -->
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
@@ -75,7 +75,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="chapter1.html" class="active"><strong aria-hidden="true">1.</strong> Chapter 1: Introduction</a></li><li class="chapter-item expanded "><a href="chapter2.html"><strong aria-hidden="true">2.</strong> Chapter 2: A Quick Tour</a></li><li class="chapter-item expanded "><a href="chapter3.html"><strong aria-hidden="true">3.</strong> Chapter 3: Scanning</a></li><li class="chapter-item expanded "><a href="chapter4.html"><strong aria-hidden="true">4.</strong> Chapter 4: Parsing</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="chapter1.html"><strong aria-hidden="true">1.</strong> Chapter 1: Introduction</a></li><li class="chapter-item expanded "><a href="chapter2.html"><strong aria-hidden="true">2.</strong> Chapter 2: A Quick Tour</a></li><li class="chapter-item expanded "><a href="chapter3.html"><strong aria-hidden="true">3.</strong> Chapter 3: Scanning</a></li><li class="chapter-item expanded "><a href="chapter4.html" class="active"><strong aria-hidden="true">4.</strong> Chapter 4: Parsing</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -134,50 +134,93 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
-<p>These are my notes for the book <a href="https://www3.nd.edu/%7Edthain/compilerbook/">Introduction to Compilers and Language
-Design</a>.</p>
-<p>The source repository for this website is
-<a href="https://github.com/psibi/compilers">here</a>. Any pull requests,
-contributions welcome!</p>
-<h2 id="what-is-a-compiler"><a class="header" href="#what-is-a-compiler">What is a compiler?</a></h2>
+                        <h1 id="parsing"><a class="header" href="#parsing">Parsing</a></h1>
+<h1 id="overview"><a class="header" href="#overview">Overview</a></h1>
 <ul>
-<li>A compiler translates a program in a source language to a program in
-a target language.</li>
-<li>A compiler is distinct from an <strong>interpreter</strong>, which reads in a
-program and then executes it directly, without emitting a
-translation. This is also sometimes known as a <strong>virtual machine</strong>.
-Languages like Python and Ruby are typically executed by an
-interpreter that reads the source code directly.</li>
-<li>Compilers and interpreters are closely related, and it is sometimes
-possible to exchange one for the other. For example, Java compilers
-translate Java source code into Java bytecode, which is an abstract
-form of assembly language. Some implementations of the Java Virtual
-Machine work as interpreters that execute one instruction at a time.
-Others work by translating the bytecode into local machine code, and
-then running the machine code directly. This is known as just in
-time compiling or JIT.</li>
+<li>To parse a computer program, we must first describe the form of
+valid sentences in a language. This formal statement is known as a
+context free grammar (CFG). Because they allow for recursion, CFGs
+are more powerful than regular expressions and can express a richer
+set of structures.</li>
+<li>LL(1) grammars are CFGs that can be evaluated by considering only
+the current rule and next token in the input stream. This property
+makes it easy to write a hand-coded parser known as a recursive
+descent parser.</li>
+<li>LR(1) grammars are more general and more powerful than LL(1). Nearly
+all useful programming languages can be written in LR(1) form.
+However, the parsing algorithm for LR(1) grammars is more complex
+and usually cannot be written by hand. Instead, it is common to use
+a parser generator that will accept an LR(1) grammar and
+automatically generate the parsing code.</li>
 </ul>
-<h2 id="why-should-you-study-compilers-"><a class="header" href="#why-should-you-study-compilers-">Why should you study compilers ?</a></h2>
+<h1 id="context-free-grammars"><a class="header" href="#context-free-grammars">Context Free Grammars</a></h1>
+<h2 id="terminal"><a class="header" href="#terminal">Terminal</a></h2>
 <ul>
-<li>You will be a better programmer.</li>
-<li>You can create tools for debugging and translating.</li>
-<li>You can create new languages.</li>
-<li>You can contribute to existing compilers.</li>
+<li>A <strong>terminal</strong> is a discrete symbol that can appear in the language,
+otherwise known as a <strong>token</strong> from the previous chapter.</li>
+<li>Examples: keywords, operators and identifiers.</li>
+<li>Convention: lower-case letters to represent terminals.</li>
 </ul>
-<h2 id="what-language-should-i-use"><a class="header" href="#what-language-should-i-use">What language should I use</a></h2>
+<h2 id="non-terminal"><a class="header" href="#non-terminal">Non terminal</a></h2>
 <ul>
-<li>Author thinks you should use C and use it to compile a C like
-language which produces assembly for a widely used processor like
-x86 or ARM.</li>
+<li>A <strong>non-terminal</strong> represents a structure that can occur in a
+language, but is not a literal symbol.</li>
+<li>Examples: declarations, statements and expressions.</li>
+<li>Convention: Upper-case letters to represent non terminals: <code>P</code> for
+programs, <code>S</code> for statement, <code>E</code> for expression etc.</li>
+</ul>
+<h2 id="sentence"><a class="header" href="#sentence">Sentence</a></h2>
+<ul>
+<li>A <strong>sentence</strong> is a valid sequence of terminals in a language.</li>
+</ul>
+<h2 id="sentential-form"><a class="header" href="#sentential-form">Sentential form</a></h2>
+<ul>
+<li>A <strong>sentential form</strong> is a valid sequence of terminals and non
+terminals.</li>
+<li>Convention: Greek symbols to represent sentential forms. Example:
+<em>α</em>, <em>β</em> and <em>γ</em> to represent possibly mixed sequence of terminals
+and non-terminals. We will use a seqence like
+<em>Y</em><sub>1</sub><em>Y</em><sub>2</sub>...<em>Y</em><sub><em>n</em></sub> to indicate the
+individual symbols in a sentential form: <em>Y</em><sub><em>i</em></sub> may
+either be a terminal or non terminal.</li>
+</ul>
+<h2 id="context-free-grammar-cfg"><a class="header" href="#context-free-grammar-cfg">Context Free Grammar (CFG)</a></h2>
+<ul>
+<li>A <strong>CFG</strong> is a list of <strong>rules</strong> that formally describe the
+allowable sentences in a language.</li>
+<li>The left hand side of each rule is always a single non-terminal.</li>
+<li>The right hand side of a rule is a <strong>sentential form</strong> that
+describes an allowable form of that non-terminal.</li>
+<li>Example rule: <code>A -&gt; xXy</code> indicates that the non-terminal <code>A</code>
+represents a terminal <code>x</code> followed by a non-terminal <code>X</code> and a
+terminal <code>y</code>.</li>
+<li>The right hand side of a rule can be <em>ϵ</em> to indicate that the rule
+produces nothing.</li>
+<li>The first rule is special: it is the top level definition of
+aprogram and it's non terminal is known as the <strong>start symbol</strong></li>
+</ul>
+<p>Sample CFG describing expressions involving addition, integers and
+identifiers:</p>
+<p><a href="./images/c4_g2.png"><img src="./images/c4_g2.png" alt="" /></a></p>
+<h2 id="deriving-sentences"><a class="header" href="#deriving-sentences">Deriving Sentences</a></h2>
+<ul>
+<li>Each grammar describes a (possibly infinite) set of sentences, which
+is known as the <strong>language</strong> of the grammar.</li>
+<li>To prove that a given sentence is a member of that language, we must
+show that there exists a sequence of rule applications that connects
+the start symbol with the desired sentence.</li>
+<li>A sequence of rule applications is known as a <strong>derivation</strong> and a
+double arrow (⇒) is used to show that one sentential form is equal
+to another by applying a given rule. Example: E ⇒ int by applying
+rule 4 of grammer G2.</li>
 </ul>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="next" href="chapter2.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                                <i class="fa fa-angle-right"></i>
+                            <a rel="prev" href="chapter3.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
                             </a>
                         <div style="clear: both"></div>
                     </nav>
@@ -185,8 +228,8 @@ x86 or ARM.</li>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="next" href="chapter2.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                        <i class="fa fa-angle-right"></i>
+                    <a rel="prev" href="chapter3.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
                     </a>
             </nav>
 
