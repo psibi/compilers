@@ -202,6 +202,8 @@ aprogram and it's non terminal is known as the <strong>start symbol</strong></li
 <p>Sample CFG describing expressions involving addition, integers and
 identifiers:</p>
 <p><a href="./images/c4_g2.png"><img src="./images/c4_g2.png" alt="" /></a></p>
+<p>For brevity, the above grammar can also be written as:</p>
+<p>E -&gt; E + E | ident | int</p>
 <h2 id="deriving-sentences"><a class="header" href="#deriving-sentences">Deriving Sentences</a></h2>
 <ul>
 <li>Each grammar describes a (possibly infinite) set of sentences, which
@@ -246,7 +248,7 @@ the expression be an atomic term (T), like this:</li>
 <p><a href="./images/c4_g3.png"><img src="./images/c4_g3.png" alt="" /></a></p>
 <ul>
 <li>With this change, the grammer is no longer ambigous. But it still
-accepts the same language as Grammer <code>G_2.</code></li>
+accepts the same language as Grammer <em>G</em><sub>2</sub></li>
 <li>If you want to construct a grammar with more operators (division,
 muliplication) - then the usual approach is to construct a grammar
 with multiple levels that reflect the intended precedence of
@@ -267,6 +269,105 @@ this sentence:</p>
 <li>If E then (if E then other) else other</li>
 </ul>
 <h1 id="ll-grammars"><a class="header" href="#ll-grammars">LL Grammars</a></h1>
+<ul>
+<li>LL(1) grammars are a subset of CFGs that are easy to parse with
+simple algorithms.</li>
+<li>A grammar is LL(1) if it can be parsed by considering only one
+non-terminal and the next token in the input stream.</li>
+</ul>
+<p>To ensure a grammar is LL(1) we must do the following:</p>
+<ul>
+<li>Remove any ambiguity as shown above.</li>
+<li>Eliminate any left recursion.</li>
+<li>Eliminate any common left prefixes.</li>
+</ul>
+<h2 id="eliminating-left-recursion"><a class="header" href="#eliminating-left-recursion">Eliminating Left recursion</a></h2>
+<p>LL(1) grammars cannot contain <strong>left recursion</strong> which is a rule of the
+form A → A<em>α</em> or, more generally, any rule A → B<em>β</em> such that B ⇒ A<em>γ</em>
+by some sequence of derivations.</p>
+<p><a href="./images/c4_elim_left_recur.png"><img src="./images/c4_elim_left_recur.png" alt="" /></a></p>
+<h2 id="eliminating-common-left-prefixes"><a class="header" href="#eliminating-common-left-prefixes">Eliminating Common Left Prefixes</a></h2>
+<p><a href="./images/c4_elim_comm_prefix_1.png"><img src="./images/c4_elim_comm_prefix_1.png" alt="" /></a></p>
+<p>Fixing the grammar will result in:</p>
+<p><a href="./images/c4_g8.png"><img src="./images/c4_g8.png" alt="" /></a></p>
+<h2 id="first-and-follow-sets"><a class="header" href="#first-and-follow-sets">First and Follow Sets</a></h2>
+<ul>
+<li>In order to construct a complete parser for an LL(1) grammar, we
+must compute two sets, known as <code>FIRST</code> and <code>FOLLOW</code>.</li>
+<li>Informally, FIRST(<em>α</em>) indicates the set of terminals (including
+<em>ϵ</em>) that could potentially appear at the beginning of any
+<strong>derivation</strong> of <em>α</em>.</li>
+<li>FOLLOW(A) indicates the set of terminals (including $) that could
+potentially occur after any derivation of non-terminal A.</li>
+<li>Given the contents of these two set, the LL(1) parser will always
+know <code>which rule to pick next</code>.</li>
+</ul>
+<p><a href="./images/c4_first_set.png"><img src="./images/c4_first_set.png" alt="" /></a></p>
+<p>For non terminals, it says this:</p>
+<p>For each rule X → <em>Y</em><sub>1</sub><em>Y</em><sub>2</sub>...<em>Y</em><sub><em>k</em></sub> in
+a grammar G:</p>
+<ul>
+<li>FIRST(X) = a if FIRST(Y<sub>1</sub>) = a or (a =
+FIRST(Y<sub>n</sub>) and Y<sub>1</sub>…Y<sub>n</sub>  ⇒ <em>ϵ</em> )</li>
+</ul>
+<p>In the above <em>a</em> = FIRST(<em>Y</em><sub><em>n</em></sub>) refers to <em>n</em> where n can be
+1,2 or <em>n</em></p>
+<p><em>Y</em><sub>1</sub>...<em>Y</em><sub><em>n</em> − 1</sub> ⇒ <em>ϵ</em> means
+<em>ϵ</em> ∈ FIRST(<em>Y</em><sub>1</sub>)...<em>ϵ</em> ∈ FIRST(<em>Y</em><sub><em>n</em> − 1</sub>)</p>
+<p><a href="./images/c4_follow_sets.png"><img src="./images/c4_follow_sets.png" alt="" /></a></p>
+<p>I also found the following source very helpful:</p>
+<ul>
+<li><a href="https://www.jambe.co.nz/UNI/FirstAndFollowSets.html">jambe.con.nz
+source</a> (For
+first sets)</li>
+<li><a href="http://www.cs.ecu.edu/karl/5220/spr16/Notes/Top-down/follow.html">cs.ecu.edu
+source</a>
+<a href="https://web.archive.org/web/20190203020902/http://www.cs.ecu.edu/karl/5220/spr16/Notes/Top-down/follow.html">Archive
+link</a>
+(For follow set, example specifically)</li>
+</ul>
+<p>I personally found that working out the examples, let me to understand
+the above algorithm better. It comes naturally after a certain time. Now
+let's see an example:</p>
+<p><a href="./images/c4_g9.png"><img src="./images/c4_g9.png" alt="" /></a></p>
+<p>You can also use this <a href="https://hackage.haskell.org/package/context-free-grammar-0.1.1/docs/Data-Cfg-Analysis.html">Haskell
+module</a>
+to find them. (Future todo: Write a blog post about it)</p>
+<p>Now for Grammer <em>G</em><sub>9</sub>, let's find out the follow sets:</p>
+<p>FOLLOW(P) = {$} since P is the start state.</p>
+<p>FOLLOW(E)</p>
+<p>FOLLOW(E) contains $ since the sentinel form E shows that. (P =&gt; E)</p>
+<p>E =&gt; TE' =&gt; FT'E' =&gt; (E)T'E'</p>
+<p>yields a sentinel form where E is followed by <code>)</code></p>
+<p>FOLLOW(E')</p>
+<p>P =&gt; E =&gt; TE' =&gt; E'</p>
+<p>So, FOLLOW(E') contains $.</p>
+<p>T =&gt; FT' =&gt; (E)T' =&gt; (TE')T'</p>
+<p>yields a sentinel form where E' is followed by <code>)</code></p>
+<p>FOLLOW(T)</p>
+<p>P =&gt; E =&gt; TE' =&gt; T</p>
+<p>So, FOLLOW(T) contains $.</p>
+<p>TE' =&gt; T+TE'</p>
+<p>yields a sentinel form where T is followed by <code>+</code></p>
+<p>T =&gt; FT' =&gt; (E)T' =&gt; (TE')T' =&gt; (T)T'</p>
+<p>yields a sentinel form where T is followed by <code>)</code></p>
+<p>FOLLOW(T')</p>
+<p>P =&gt; E =&gt; TE' =&gt; FT'E' =&gt; FT' =&gt; T</p>
+<p>We know that FOLLOW(T) contains $</p>
+<p>T' =&gt; *FT' =&gt; *(E)T' =&gt; *(+TE')T' =&gt; *(+FT')T'</p>
+<p>yields a sentinel form where T' is followed by <code>)</code></p>
+<p>FT' =&gt; (E)T' =&gt; (TE')T' =&gt; (FT'E')T' =&gt; (FT'+TE)T'</p>
+<p>yields a sentinel form wherer T' is followed by <code>+</code></p>
+<p>FOLLOW(F)</p>
+<p>P =&gt; E =&gt; TE' =&gt; T =&gt; FT' =&gt; F</p>
+<p>So, Follow(F) contains $</p>
+<p>FT' =&gt; F*FT'</p>
+<p>yields a sentinel form where F is followd by <code>*</code></p>
+<p>TE' =&gt; T+TE' =&gt; FT'+TE' =&gt; F+TE'</p>
+<p>yields a sentinel form where F is followed by <code>+</code></p>
+<p>FT' =&gt; F*FT' =&gt; F*(E)T' =&gt; F*(TE')T' =&gt; F*(T)T' =&gt; F*(FT')T'
+=&gt; F*(F)T'</p>
+<p>yiels a sentinel form where F is followed by <code>)</code></p>
 
                     </main>
 

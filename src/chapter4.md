@@ -70,6 +70,10 @@ identifiers:
 
 [![](./images/c4_g2.png)](./images/c4_g2.png)
 
+For brevity, the above grammar can also be written as:
+
+E -\> E + E | ident | int
+
 ## Deriving Sentences
 
 -   Each grammar describes a (possibly infinite) set of sentences, which
@@ -119,7 +123,7 @@ language, in which case we describe them as having **weak equivalence**.
 [![](./images/c4_g3.png)](./images/c4_g3.png)
 
 -   With this change, the grammer is no longer ambigous. But it still
-    accepts the same language as Grammer `G_2.`
+    accepts the same language as Grammer *G*<sub>2</sub>
 -   If you want to construct a grammar with more operators (division,
     muliplication) - then the usual approach is to construct a grammar
     with multiple levels that reflect the intended precedence of
@@ -141,3 +145,152 @@ There are two derivations of this sentence:
 
 -   If E then (if E then other else other)
 -   If E then (if E then other) else other
+
+# LL Grammars
+
+-   LL(1) grammars are a subset of CFGs that are easy to parse with
+    simple algorithms.
+-   A grammar is LL(1) if it can be parsed by considering only one
+    non-terminal and the next token in the input stream.
+
+To ensure a grammar is LL(1) we must do the following:
+
+-   Remove any ambiguity as shown above.
+-   Eliminate any left recursion.
+-   Eliminate any common left prefixes.
+
+## Eliminating Left recursion
+
+LL(1) grammars cannot contain **left recursion** which is a rule of the
+form A → A*α* or, more generally, any rule A → B*β* such that B ⇒ A*γ*
+by some sequence of derivations.
+
+[![](./images/c4_elim_left_recur.png)](./images/c4_elim_left_recur.png)
+
+## Eliminating Common Left Prefixes
+
+[![](./images/c4_elim_comm_prefix_1.png)](./images/c4_elim_comm_prefix_1.png)
+
+Fixing the grammar will result in:
+
+[![](./images/c4_g8.png)](./images/c4_g8.png)
+
+## First and Follow Sets
+
+-   In order to construct a complete parser for an LL(1) grammar, we
+    must compute two sets, known as `FIRST` and `FOLLOW`.
+-   Informally, FIRST(*α*) indicates the set of terminals (including
+    *ϵ*) that could potentially appear at the beginning of any
+    **derivation** of *α*.
+-   FOLLOW(A) indicates the set of terminals (including $) that could
+    potentially occur after any derivation of non-terminal A.
+-   Given the contents of these two set, the LL(1) parser will always
+    know `which rule to pick next`.
+
+[![](./images/c4_first_set.png)](./images/c4_first_set.png)
+
+For non terminals, it says this:
+
+For each rule X → *Y*<sub>1</sub>*Y*<sub>2</sub>...*Y*<sub>*k*</sub> in
+a grammar G:
+
+-   FIRST(X) = a if FIRST(Y<sub>1</sub>) = a or (a =
+    FIRST(Y<sub>n</sub>) and Y<sub>1</sub>…Y<sub>n</sub>  ⇒ *ϵ* )
+
+In the above *a* = FIRST(*Y*<sub>*n*</sub>) refers to *n* where n can be
+1,2 or *n*
+
+*Y*<sub>1</sub>...*Y*<sub>*n* − 1</sub> ⇒ *ϵ* means
+*ϵ* ∈ FIRST(*Y*<sub>1</sub>)...*ϵ* ∈ FIRST(*Y*<sub>*n* − 1</sub>)
+
+[![](./images/c4_follow_sets.png)](./images/c4_follow_sets.png)
+
+I also found the following source very helpful:
+
+-   [jambe.con.nz
+    source](https://www.jambe.co.nz/UNI/FirstAndFollowSets.html) (For
+    first sets)
+-   [cs.ecu.edu
+    source](http://www.cs.ecu.edu/karl/5220/spr16/Notes/Top-down/follow.html)
+    [Archive
+    link](https://web.archive.org/web/20190203020902/http://www.cs.ecu.edu/karl/5220/spr16/Notes/Top-down/follow.html)
+    (For follow set, example specifically)
+
+I personally found that working out the examples, let me to understand
+the above algorithm better. It comes naturally after a certain time. Now
+let's see an example:
+
+[![](./images/c4_g9.png)](./images/c4_g9.png)
+
+You can also use this [Haskell
+module](https://hackage.haskell.org/package/context-free-grammar-0.1.1/docs/Data-Cfg-Analysis.html)
+to find them. (Future todo: Write a blog post about it)
+
+Now for Grammer *G*<sub>9</sub>, let's find out the follow sets:
+
+FOLLOW(P) = {$} since P is the start state.
+
+FOLLOW(E)
+
+FOLLOW(E) contains $ since the sentinel form E shows that. (P =\> E)
+
+E =\> TE' =\> FT'E' =\> (E)T'E'
+
+yields a sentinel form where E is followed by `)`
+
+FOLLOW(E')
+
+P =\> E =\> TE' =\> E'
+
+So, FOLLOW(E') contains $.
+
+T =\> FT' =\> (E)T' =\> (TE')T'
+
+yields a sentinel form where E' is followed by `)`
+
+FOLLOW(T)
+
+P =\> E =\> TE' =\> T
+
+So, FOLLOW(T) contains $.
+
+TE' =\> T+TE'
+
+yields a sentinel form where T is followed by `+`
+
+T =\> FT' =\> (E)T' =\> (TE')T' =\> (T)T'
+
+yields a sentinel form where T is followed by `)`
+
+FOLLOW(T')
+
+P =\> E =\> TE' =\> FT'E' =\> FT' =\> T
+
+We know that FOLLOW(T) contains $
+
+T' =\> \*FT' =\> \*(E)T' =\> \*(+TE')T' =\> \*(+FT')T'
+
+yields a sentinel form where T' is followed by `)`
+
+FT' =\> (E)T' =\> (TE')T' =\> (FT'E')T' =\> (FT'+TE)T'
+
+yields a sentinel form wherer T' is followed by `+`
+
+FOLLOW(F)
+
+P =\> E =\> TE' =\> T =\> FT' =\> F
+
+So, Follow(F) contains $
+
+FT' =\> F\*FT'
+
+yields a sentinel form where F is followd by `*`
+
+TE' =\> T+TE' =\> FT'+TE' =\> F+TE'
+
+yields a sentinel form where F is followed by `+`
+
+FT' =\> F\*FT' =\> F\*(E)T' =\> F\*(TE')T' =\> F\*(T)T' =\> F\*(FT')T'
+=\> F\*(F)T'
+
+yiels a sentinel form where F is followed by `)`

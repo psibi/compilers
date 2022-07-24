@@ -68,6 +68,12 @@ identifiers:
 
 [[./images/c4_g2.png][./images/c4_g2.png]]
 
+For brevity, the above grammar can also be written as:
+
+#+begin_example text
+E -> E + E | ident | int
+#+end_example
+
 ** Deriving Sentences
 
 - Each grammar describes a (possibly infinite) set of sentences, which
@@ -117,7 +123,7 @@ language, in which case we describe them as having *weak equivalence*.
 [[./images/c4_g3.png][./images/c4_g3.png]]
 
 - With this change, the grammer is no longer ambigous. But it still
-  accepts the same language as Grammer ~G_2.~
+  accepts the same language as Grammer $G_2$
 - If you want to construct a grammar with more operators (division,
   muliplication) - then the usual approach is to construct a grammar
   with multiple levels that reflect the intended precedence of
@@ -142,52 +148,150 @@ There are two derivations of this sentence:
 
 * LL Grammars
 
-notes for myself:
+- LL(1) grammars are a subset of CFGs that are easy to parse with
+  simple algorithms.
+- A grammar is LL(1) if it can be parsed by considering only one
+  non-terminal and the next token in the input stream.
 
-Explanation of computing first set algorithms:
+To ensure a grammar is LL(1) we must do the following:
 
-- For non terminals, it says this:
+- Remove any ambiguity as shown above.
+- Eliminate any left recursion.
+- Eliminate any common left prefixes.
 
-For each rule X -> $Y_1Y_2...Y_k$ in a grammer G:
-  FIRST(X) = a if FIRST(Y_1) = a or (a = FIRST(Y_n) and Y_1...Y_n $Rightarrow \epsilon$ )
+** Eliminating Left recursion
 
-In the above $a = FIRST(Y_n)$ refers to $n$ where n can be 1,2 or $n$
+LL(1) grammars cannot contain *left recursion* which is a rule of the
+form $\text{A} \rightarrow \text{A} \alpha$ or, more generally, any
+rule $\text{A} \rightarrow \text{B}\beta$ such that $\text{B}
+\Rightarrow \text{A}\gamma$ by some sequence of derivations.
 
+[[./images/c4_elim_left_recur.png][./images/c4_elim_left_recur.png]]
 
+** Eliminating Common Left Prefixes
 
-$Y_1...Y_{n-1} \Rightarrow \epsilon$ means $\epsilon \in \First{Y_1} ... \epsilon \in \First{Y_{n-1}}$
+[[./images/c4_elim_comm_prefix_1.png][./images/c4_elim_comm_prefix_1.png]]
 
-https://www.jambe.co.nz/UNI/FirstAndFollowSets.html
-https://people.cs.pitt.edu/~jmisurda/teaching/cs1622/handouts/cs1622-first_and_follow.pdf
+Fixing the grammar will result in:
 
-follow examples:
+[[./images/c4_g8.png][./images/c4_g8.png]]
 
-- https://stackoverflow.com/questions/29197332/how-to-find-first-and-follow-sets-of-a-recursive-grammar
+** First and Follow Sets
 
-First(P) = First(E)
+- In order to construct a complete parser for an LL(1) grammar, we
+  must compute two sets, known as ~FIRST~ and ~FOLLOW~.
+- Informally, FIRST($\alpha$) indicates the set of terminals
+  (including $\epsilon$) that could potentially appear at the
+  beginning of any *derivation* of $\alpha$.
+- FOLLOW(A) indicates the set of terminals (including $) that could
+  potentially occur after any derivation of non-terminal A.
+- Given the contents of these two set, the LL(1) parser will always
+  know ~which rule to pick next~.
 
-E -> TE'
+[[./images/c4_first_set.png][./images/c4_first_set.png]]
 
-FIRST(T)
+For non terminals, it says this:
 
-T -> FT'
+For each rule X $\rightarrow$ $Y_1Y_2...Y_k$ in a grammar G:
+- FIRST(X) = a if FIRST(Y_1) = a or (a = FIRST(Y_n) and Y_1...Y_n $\Rightarrow \epsilon$ )
 
-FIRST(F) = {(, int}
+In the above $a = \text{FIRST}(Y_n)$ refers to $n$ where n can be 1,2 or $n$
 
-So, First(P) = {(, int)}
+$Y_1...Y_{n-1} \Rightarrow \epsilon$ \text{means} $\epsilon \in \text{FIRST(}{Y_1)} ... \epsilon \in \text{FIRST}{(Y_{n-1})}$
 
-Let's compute First(E')
+[[./images/c4_follow_sets.png][./images/c4_follow_sets.png]]
 
-E' -> $\epsilon$
-E' -> +TE'
+I also found the following source very helpful:
+- [[https://www.jambe.co.nz/UNI/FirstAndFollowSets.html][jambe.con.nz source]] (For first sets)
+- [[http://www.cs.ecu.edu/karl/5220/spr16/Notes/Top-down/follow.html][cs.ecu.edu source]] [[https://web.archive.org/web/20190203020902/http://www.cs.ecu.edu/karl/5220/spr16/Notes/Top-down/follow.html][Archive link]] (For follow set, example specifically)
 
+I personally found that working out the examples, let me to understand
+the above algorithm better. Always going back to the informal
+definition above will help you. Now let's see an example:
 
----
+[[./images/c4_g9.png][./images/c4_g9.png]]
 
-FOLLOW(P) = {$}
+You can also use this [[https://hackage.haskell.org/package/context-free-grammar-0.1.1/docs/Data-Cfg-Analysis.html][Haskell module]] to find them. (Future todo: Write
+a blog post about it)
 
-Rule 2:
+Now for Grammer $G_9$, let's find out the follow sets:
 
-E -> T E'
+FOLLOW(P) = {$} since P is the start state.
 
-FOLLOW(T) = FIRST(E') - $\epsilon = {+, \epsilon} - {\epsilon} = { + }$
+FOLLOW(E)
+
+FOLLOW(E) contains $ since the sentinel form E shows that. (P => E)
+
+E => TE' => FT'E' => (E)T'E'
+
+yields a sentinel form where E is followed by ~)~
+
+FOLLOW(E')
+
+P => E => TE' => E'
+
+So, FOLLOW(E') contains $.
+
+T => FT' => (E)T' => (TE')T'
+
+yields a sentinel form where E' is followed by ~)~
+
+FOLLOW(T)
+
+P => E => TE' => T
+
+So, FOLLOW(T) contains $.
+
+TE' => T+TE'
+
+yields a sentinel form where T is followed by ~+~
+
+T => FT' => (E)T' => (TE')T' => (T)T'
+
+yields a sentinel form where  T is followed by ~)~
+
+FOLLOW(T')
+
+P => E => TE' => FT'E' => FT' => T
+
+We know that FOLLOW(T) contains $
+
+T' => *FT' => *(E)T' => *(+TE')T' => *(+FT')T'
+
+yields a sentinel form where T' is followed by ~)~
+
+FT' => (E)T' => (TE')T' => (FT'E')T' => (FT'+TE)T'
+
+yields a sentinel form wherer T' is followed by ~+~
+
+FOLLOW(F)
+
+P => E => TE' => T => FT' => F
+
+So, Follow(F) contains $
+
+FT' => F*FT'
+
+yields a sentinel form where F is followd by ~*~
+
+TE' => T+TE' => FT'+TE' => F+TE'
+
+yields a sentinel form where F is followed by ~+~
+
+FT' => F*FT' => F*(E)T' => F*(TE')T' => F*(T)T' => F*(FT')T' => F*(F)T'
+
+yiels a sentinel form where F is followed by ~)~
+
+** Recursive Descent Parsing
+
+- LL(1) grammars are very amenable to write simple hand-coded parsers.
+- A common approach is a *recursive descent parser* in which there is
+  one simple function for each non-terminal in the grammar. The body
+  of the function follow the right hand sides of the corresponding
+  rules: non-terminal results in a call to another parse function,
+  while terminals result in considering the next token.
+
+** Table Driven Parsing
+
+- An LL(1) grammar can also be parsed using generalized table driven
+  code.
