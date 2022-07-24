@@ -141,3 +141,53 @@ There are two derivations of this sentence:
 - If E then (if E then other) else other
 
 * LL Grammars
+
+notes for myself:
+
+Explanation of computing first set algorithms:
+
+- For non terminals, it says this:
+
+For each rule X -> $Y_1Y_2...Y_k$ in a grammer G:
+  FIRST(X) = a if FIRST(Y_1) = a or (a = FIRST(Y_n) and Y_1...Y_n $Rightarrow \epsilon$ )
+
+In the above $a = FIRST(Y_n)$ refers to $n$ where n can be 1,2 or $n$
+
+
+
+$Y_1...Y_{n-1} \Rightarrow \epsilon$ means $\epsilon \in \First{Y_1} ... \epsilon \in \First{Y_{n-1}}$
+
+https://www.jambe.co.nz/UNI/FirstAndFollowSets.html
+https://people.cs.pitt.edu/~jmisurda/teaching/cs1622/handouts/cs1622-first_and_follow.pdf
+
+follow examples:
+
+- https://stackoverflow.com/questions/29197332/how-to-find-first-and-follow-sets-of-a-recursive-grammar
+
+First(P) = First(E)
+
+E -> TE'
+
+FIRST(T)
+
+T -> FT'
+
+FIRST(F) = {(, int}
+
+So, First(P) = {(, int)}
+
+Let's compute First(E')
+
+E' -> $\epsilon$
+E' -> +TE'
+
+
+---
+
+FOLLOW(P) = {$}
+
+Rule 2:
+
+E -> T E'
+
+FOLLOW(T) = FIRST(E') - $\epsilon = {+, \epsilon} - {\epsilon} = { + }$
