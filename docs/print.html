@@ -536,6 +536,59 @@ double arrow (⇒) is used to show that one sentential form is equal
 to another by applying a given rule. Example: E ⇒ int by applying
 rule 4 of grammer G2.</li>
 </ul>
+<p>There are two approaches to derivation:</p>
+<ul>
+<li>top-down: Begin with the start symbol, and then apply rules in the
+CFG to expand non terminals until reaching the desired sentence.</li>
+<li>bottom-up: Begin with the desired setence, and then apply the rules
+backwards until reaching the start symbol.</li>
+</ul>
+<p>For example, <code>ident + int + int</code> is a sentence in this language and here
+is one top-down derivation to prove it:</p>
+<p><a href="./images/c4_g2_top_down.png"><img src="./images/c4_g2_top_down.png" alt="" /></a></p>
+<p>And similar proof using bottom-up derivation:</p>
+<p><img src="./images/c4_g2_bottom_up.png" alt="" /></p>
+<p>It is quite possible for two different grammars to generate the same
+language, in which case we describe them as having <strong>weak equivalence</strong>.</p>
+<h2 id="ambiguous-grammars"><a class="header" href="#ambiguous-grammars">Ambiguous Grammars</a></h2>
+<ul>
+<li>An <strong>ambiguous grammar</strong> allows for more than one possible
+derivation of the same sentence.</li>
+<li>Example: The sentence <code>ident + int + int</code> can have two derivations:</li>
+</ul>
+<p><img src="./images/c4_ambigous_grammar.png" alt="" /></p>
+<ul>
+<li>Does it matter in the above case ? It certainly does!</li>
+<li>In a language like Java such a sentence <code>hello + 5 + 5</code> could be
+interpreted as either <code>hello55</code> or <code>hello10</code> and that's not good.</li>
+<li>It is possible to re-write a grammer so that it is not ambiguous. In
+the common case of binary operators, we can require that one side of
+the expression be an atomic term (T), like this:</li>
+</ul>
+<p><a href="./images/c4_g3.png"><img src="./images/c4_g3.png" alt="" /></a></p>
+<ul>
+<li>With this change, the grammer is no longer ambigous. But it still
+accepts the same language as Grammer <code>G_2.</code></li>
+<li>If you want to construct a grammar with more operators (division,
+muliplication) - then the usual approach is to construct a grammar
+with multiple levels that reflect the intended precedence of
+operators:</li>
+</ul>
+<p><a href="./images/c4_g4.png"><img src="./images/c4_g4.png" alt="" /></a></p>
+<p>Grammar which supports two if statements (if-then and if-then-else
+variant):</p>
+<p><a href="./images/c4_g5.png"><img src="./images/c4_g5.png" alt="" /></a></p>
+<p>The above grammer is ambiguous because it allows for two derivations of
+this sentence:</p>
+<ul>
+<li>If E then if E then other else other</li>
+</ul>
+<p>There are two derivations of this sentence:</p>
+<ul>
+<li>If E then (if E then other else other)</li>
+<li>If E then (if E then other) else other</li>
+</ul>
+<h1 id="ll-grammars"><a class="header" href="#ll-grammars">LL Grammars</a></h1>
 
                     </main>
 
