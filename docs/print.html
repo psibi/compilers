@@ -649,8 +649,8 @@ link</a>
 (For follow set, example specifically)</li>
 </ul>
 <p>I personally found that working out the examples, let me to understand
-the above algorithm better. It comes naturally after a certain time. Now
-let's see an example:</p>
+the above algorithm better. Always going back to the informal definition
+above will help you. Now let's see an example:</p>
 <p><a href="./images/c4_g9.png"><img src="./images/c4_g9.png" alt="" /></a></p>
 <p>You can also use this <a href="https://hackage.haskell.org/package/context-free-grammar-0.1.1/docs/Data-Cfg-Analysis.html">Haskell
 module</a>
@@ -690,6 +690,28 @@ to find them. (Future todo: Write a blog post about it)</p>
 <p>FT' =&gt; F*FT' =&gt; F*(E)T' =&gt; F*(TE')T' =&gt; F*(T)T' =&gt; F*(FT')T'
 =&gt; F*(F)T'</p>
 <p>yiels a sentinel form where F is followed by <code>)</code></p>
+<h2 id="recursive-descent-parsing"><a class="header" href="#recursive-descent-parsing">Recursive Descent Parsing</a></h2>
+<ul>
+<li>LL(1) grammars are very amenable to write simple hand-coded parsers.</li>
+<li>A common approach is a <strong>recursive descent parser</strong> in which there
+is one simple function for each non-terminal in the grammar. The
+body of the function follow the right hand sides of the
+corresponding rules: non-terminal results in a call to another parse
+function, while terminals result in considering the next token.</li>
+</ul>
+<h2 id="table-driven-parsing"><a class="header" href="#table-driven-parsing">Table Driven Parsing</a></h2>
+<ul>
+<li>An LL(1) grammar can also be parsed using generalized table driven
+code.</li>
+<li>A table driven parser requires a grammar, a parse table and a stack
+to represent the current set of non-terminals.</li>
+<li>The <strong>LL(1) parse table</strong> is used to determine which rule should be
+applied for any combination of non-terminal on the stack and next
+token on the input stream.</li>
+</ul>
+<p><a href="./images/c4_l1_parse_table.png"><img src="./images/c4_l1_parse_table.png" alt="" /></a></p>
+<p><a href="./images/c4_parse_table_g9.png"><img src="./images/c4_parse_table_g9.png" alt="" /></a></p>
+<p><a href="./images/c4_ll_parsing_algo.png"><img src="./images/c4_ll_parsing_algo.png" alt="" /></a></p>
 
                     </main>
 

@@ -217,8 +217,8 @@ I also found the following source very helpful:
     (For follow set, example specifically)
 
 I personally found that working out the examples, let me to understand
-the above algorithm better. It comes naturally after a certain time. Now
-let's see an example:
+the above algorithm better. Always going back to the informal definition
+above will help you. Now let's see an example:
 
 [![](./images/c4_g9.png)](./images/c4_g9.png)
 
@@ -294,3 +294,28 @@ FT' =\> F\*FT' =\> F\*(E)T' =\> F\*(TE')T' =\> F\*(T)T' =\> F\*(FT')T'
 =\> F\*(F)T'
 
 yiels a sentinel form where F is followed by `)`
+
+## Recursive Descent Parsing
+
+-   LL(1) grammars are very amenable to write simple hand-coded parsers.
+-   A common approach is a **recursive descent parser** in which there
+    is one simple function for each non-terminal in the grammar. The
+    body of the function follow the right hand sides of the
+    corresponding rules: non-terminal results in a call to another parse
+    function, while terminals result in considering the next token.
+
+## Table Driven Parsing
+
+-   An LL(1) grammar can also be parsed using generalized table driven
+    code.
+-   A table driven parser requires a grammar, a parse table and a stack
+    to represent the current set of non-terminals.
+-   The **LL(1) parse table** is used to determine which rule should be
+    applied for any combination of non-terminal on the stack and next
+    token on the input stream.
+
+[![](./images/c4_l1_parse_table.png)](./images/c4_l1_parse_table.png)
+
+[![](./images/c4_parse_table_g9.png)](./images/c4_parse_table_g9.png)
+
+[![](./images/c4_ll_parsing_algo.png)](./images/c4_ll_parsing_algo.png)

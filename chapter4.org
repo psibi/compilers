@@ -295,3 +295,14 @@ yiels a sentinel form where F is followed by ~)~
 
 - An LL(1) grammar can also be parsed using generalized table driven
   code.
+- A table driven parser requires a grammar, a parse table and a stack
+  to represent the current set of non-terminals.
+- The *LL(1) parse table* is used to determine which rule should be
+  applied for any combination of non-terminal on the stack and next
+  token on the input stream.
+
+[[./images/c4_l1_parse_table.png][./images/c4_l1_parse_table.png]]
+
+[[./images/c4_parse_table_g9.png][./images/c4_parse_table_g9.png]]
+
+[[./images/c4_ll_parsing_algo.png][./images/c4_ll_parsing_algo.png]]
