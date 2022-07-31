@@ -62,8 +62,8 @@
     terminal `y`.
 -   The right hand side of a rule can be *ϵ* to indicate that the rule
     produces nothing.
--   The first rule is special: it is the top level definition of
-    aprogram and it's non terminal is known as the **start symbol**
+-   The first rule is special: it is the top level definition of a
+    program and it's non terminal is known as the **start symbol**
 
 Sample CFG describing expressions involving addition, integers and
 identifiers:
@@ -319,3 +319,35 @@ yiels a sentinel form where F is followed by `)`
 [![](./images/c4_parse_table_g9.png)](./images/c4_parse_table_g9.png)
 
 [![](./images/c4_ll_parsing_algo.png)](./images/c4_ll_parsing_algo.png)
+
+# LR Grammars
+
+-   While LL(1) grammars and top-down parsing techniques are easy to
+    work with, they are not able to represent all of the structures
+    found in many programming languages. For more general-purpose
+    programming languages, we must use an LR(1) grammar and associated
+    bottom-up parsing techniques.
+-   LR(1) is the set of grammars that can be parsed via shift-reduce
+    techniques with a single character of lookahead.
+-   LR(1) is a super-set of LL(1) and can accommodate left recursion and
+    common left prefixes which are not permitted in LL(1).
+
+Example of LR(1) grammar:
+
+[![](./images/c4_g10.png)](./images/c4_g10.png)
+
+## Shift Reduce Parsing
+
+-   LR(1) grammars must be parsed using the **shift-reduce** parsing
+    technique. This is a bottom-up parsing strategy that begins with the
+    tokens and looks for rules that can be applied to reduce sentential
+    forms into non-terminals. If there is a sequence of reductions that
+    leads to the start symbol, then the parse is successful.
+-   A **shift** action consumes one token from the input stream and
+    pushes it onto the stack.
+-   A **reduce** action applies one rule of the form *A* → *α* from the
+    grammar, replacing sentential form *α* on the stack with the non
+    terminal *A*.
+
+Example of shift-reduce parse of the sentence `id(id+id)` using Grammar
+*G*<sub>10</sub>

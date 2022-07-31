@@ -324,6 +324,10 @@ Example of LR(1) grammar:
 
 [[./images/c4_g10.png][./images/c4_g10.png]]
 
+And it's first and follow sets are these:
+
+[[./images/c4_g10_sets2.png][./images/c4_g10_sets2.png]]
+
 ** Shift Reduce Parsing
 
 - LR(1) grammars must be parsed using the *shift-reduce* parsing

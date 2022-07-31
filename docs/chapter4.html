@@ -196,8 +196,8 @@ represents a terminal <code>x</code> followed by a non-terminal <code>X</code> a
 terminal <code>y</code>.</li>
 <li>The right hand side of a rule can be <em>ϵ</em> to indicate that the rule
 produces nothing.</li>
-<li>The first rule is special: it is the top level definition of
-aprogram and it's non terminal is known as the <strong>start symbol</strong></li>
+<li>The first rule is special: it is the top level definition of a
+program and it's non terminal is known as the <strong>start symbol</strong></li>
 </ul>
 <p>Sample CFG describing expressions involving addition, integers and
 identifiers:</p>
@@ -390,6 +390,35 @@ token on the input stream.</li>
 <p><a href="./images/c4_l1_parse_table.png"><img src="./images/c4_l1_parse_table.png" alt="" /></a></p>
 <p><a href="./images/c4_parse_table_g9.png"><img src="./images/c4_parse_table_g9.png" alt="" /></a></p>
 <p><a href="./images/c4_ll_parsing_algo.png"><img src="./images/c4_ll_parsing_algo.png" alt="" /></a></p>
+<h1 id="lr-grammars"><a class="header" href="#lr-grammars">LR Grammars</a></h1>
+<ul>
+<li>While LL(1) grammars and top-down parsing techniques are easy to
+work with, they are not able to represent all of the structures
+found in many programming languages. For more general-purpose
+programming languages, we must use an LR(1) grammar and associated
+bottom-up parsing techniques.</li>
+<li>LR(1) is the set of grammars that can be parsed via shift-reduce
+techniques with a single character of lookahead.</li>
+<li>LR(1) is a super-set of LL(1) and can accommodate left recursion and
+common left prefixes which are not permitted in LL(1).</li>
+</ul>
+<p>Example of LR(1) grammar:</p>
+<p><a href="./images/c4_g10.png"><img src="./images/c4_g10.png" alt="" /></a></p>
+<h2 id="shift-reduce-parsing"><a class="header" href="#shift-reduce-parsing">Shift Reduce Parsing</a></h2>
+<ul>
+<li>LR(1) grammars must be parsed using the <strong>shift-reduce</strong> parsing
+technique. This is a bottom-up parsing strategy that begins with the
+tokens and looks for rules that can be applied to reduce sentential
+forms into non-terminals. If there is a sequence of reductions that
+leads to the start symbol, then the parse is successful.</li>
+<li>A <strong>shift</strong> action consumes one token from the input stream and
+pushes it onto the stack.</li>
+<li>A <strong>reduce</strong> action applies one rule of the form <em>A</em> → <em>α</em> from the
+grammar, replacing sentential form <em>α</em> on the stack with the non
+terminal <em>A</em>.</li>
+</ul>
+<p>Example of shift-reduce parse of the sentence <code>id(id+id)</code> using Grammar
+<em>G</em><sub>10</sub></p>
 
                     </main>
 
