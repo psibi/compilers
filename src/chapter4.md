@@ -336,6 +336,10 @@ Example of LR(1) grammar:
 
 [![](./images/c4_g10.png)](./images/c4_g10.png)
 
+And it's first and follow sets are these:
+
+[![](./images/c4_g10_sets2.png)](./images/c4_g10_sets2.png)
+
 ## Shift Reduce Parsing
 
 -   LR(1) grammars must be parsed using the **shift-reduce** parsing
@@ -350,4 +354,81 @@ Example of LR(1) grammar:
     terminal *A*.
 
 Example of shift-reduce parse of the sentence `id(id+id)` using Grammar
-*G*<sub>10</sub>
+*G*<sub>10</sub>:
+
+[![](./images/c4_shift_reduce.png)](./images/c4_shift_reduce.png)
+
+In the above example, you can see that there is some action chosen at
+each step. To understand how these decisions are made, we must analyze
+LR(1) grammars in more detail.
+
+## The LR(0) Automaton
+
+-   An **LR(0) automaton** represents all the possible rules that are
+    currently under consideration by a shift-reduce parser.
+-   Each state in the automaton consists of multiple **items**, which
+    are rules augmented by a **dot(.)** that indicates the parser's
+    current position in that rule. For example, the configuration
+    *E* → *E*. + *T* indicates that *E* is currently on the stack, and
+     + *T* is a possible next sequence of tokens.
+-   The automaton is constructed as follows. State 0 is created by
+    taking the production for the start symbol (*P*→*E*) and adding a
+    dot at the beginning of the right hand. This indicates that we
+    expect to see a complete program, but have not yet consumed any
+    symbols. This is known as the **kernel** of the state.
+
+![](./images/c4_kernel.png)
+
+-   Then, we compute the **closure** of the state as follows. For each
+    item in the state with a non-terminal *X* immediately to the right
+    of the dot, we add all the grammar that have X as the left hand
+    side. The newly added items have a dot at the beginning of the right
+    hand side.
+
+![](./images/c4_closure.png)
+
+-   From this state, all of the symbols (terminals and non-terminals
+    both) to the right of the dot are possible outgoing transitions. If
+    the automaton takes that transition, it moves to a new state
+    containing the matching items, with the dot moved one position to
+    the right. The closure of the new state is computed, possibly adding
+    new rules as described above.
+
+![](./images/c4_transition.png)
+
+[![](./images/c4_lr_automaton.png)](./images/c4_lr_automaton.png)
+
+-   The LR(0) automaton tells us the choices available at any step of
+    bottom up parsing. When we reach a state containing an item with a
+    dot at the end of the rule, that indicates a possible reduction. A
+    transition on a terminal that moves the dot one position to the
+    right indicates a possible shift. While the LR(0) automaton tells us
+    the available actions at each step, it does not always tell us
+    `which` action to take.
+
+Two types of conflict can appear in an LR grammar:
+
+-   A **shift-reduce conflict** indicates a choice between a shift
+    action and a reduce action. Example: State 4 in the above automaton
+
+[![](./images/c4_shift_reduce_conflict.png)](./images/c4_shift_reduce_conflict.png)
+
+-   A **reduce-reduce conflict** indicates that two distinct rules have
+    been completely matched, and either one could apply.
+
+[![](./images/c4_reduce_reduce.png)](./images/c4_reduce_reduce.png)
+
+The LR(0) automaton forms the basis of LR parsing, by telling us which
+actions are available in each state. But, it does not tell us which
+action to take or how to resolve shift-reduce and reduce-reduce
+conflicts. To do that, we must take into account some additional
+information.
+
+## SLR Parsing
+
+-   **Simple LR(SLR)** parsing is basic form of LR parsing in which we
+    use `FOLLOW` sets to resolve conflicts in the `LR(0)` automaton.
+-   In short, we take the reduction *A* → *α* only when the next token
+    on the input is in `FOLLOW(A)`. If a grammar can be parsed by this
+    technique, we say it is an **SLR grammar**, which is a subset of
+    LR(1) grammars.
