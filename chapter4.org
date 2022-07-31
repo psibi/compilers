@@ -222,9 +222,9 @@ FOLLOW(E)
 
 FOLLOW(E) contains $ since the sentinel form E shows that. (P => E)
 
-E => TE' => FT'E' => (E)T'E'
+In Rule 8, we see that $F -> (E)$
 
-yields a sentinel form where E is followed by ~)~
+which yields a sentinel form where E is followed by ~)~
 
 FOLLOW(E')
 
