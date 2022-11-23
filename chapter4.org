@@ -691,4 +691,4 @@ executing. However, assembly language is also the most difficult to
 use because it gives none of the guarantees found in higher level
 languages. Higher level languages are less powerful than assembly
 language, and this is what makes them more predictable, reliable, and
-congenial to use
+congenial to use.
