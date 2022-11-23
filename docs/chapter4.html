@@ -303,15 +303,6 @@ potentially occur after any derivation of non-terminal A.</li>
 know <code>which rule to pick next</code>.</li>
 </ul>
 <p><a href="./images/c4_first_set.png"><img src="./images/c4_first_set.png" alt="" /></a></p>
-<p>For non terminals, it says this:</p>
-<p>For each rule X → <em>Y</em><sub>1</sub><em>Y</em><sub>2</sub>...<em>Y</em><sub><em>k</em></sub> in
-a grammar G:</p>
-<ul>
-<li>FIRST(X) = a if FIRST(Y<sub>1</sub>) = a or (a =
-FIRST(Y<sub>n</sub>) and Y<sub>1</sub>…Y<sub>n</sub>  ⇒ <em>ϵ</em> )</li>
-</ul>
-<p>In the above <em>a</em> = FIRST(<em>Y</em><sub><em>n</em></sub>) refers to <em>n</em> where n can be
-1,2 or <em>n</em></p>
 <p><em>Y</em><sub>1</sub>...<em>Y</em><sub><em>n</em> − 1</sub> ⇒ <em>ϵ</em> means
 <em>ϵ</em> ∈ FIRST(<em>Y</em><sub>1</sub>)...<em>ϵ</em> ∈ FIRST(<em>Y</em><sub><em>n</em> − 1</sub>)</p>
 <p><a href="./images/c4_follow_sets.png"><img src="./images/c4_follow_sets.png" alt="" /></a></p>
@@ -333,41 +324,48 @@ above will help you. Now let's see an example:</p>
 <p>You can also use this <a href="https://hackage.haskell.org/package/context-free-grammar-0.1.1/docs/Data-Cfg-Analysis.html">Haskell
 module</a>
 to find them. (Future todo: Write a blog post about it)</p>
-<p>Now for Grammer <em>G</em><sub>9</sub>, let's find out the follow sets:</p>
-<p>FOLLOW(P) = {$} since P is the start state.</p>
-<p>FOLLOW(E)</p>
-<p>FOLLOW(E) contains $ since the sentinel form E shows that. (P =&gt; E)</p>
-<p>E =&gt; TE' =&gt; FT'E' =&gt; (E)T'E'</p>
-<p>yields a sentinel form where E is followed by <code>)</code></p>
-<p>FOLLOW(E')</p>
-<p>P =&gt; E =&gt; TE' =&gt; E'</p>
-<p>So, FOLLOW(E') contains $.</p>
-<p>T =&gt; FT' =&gt; (E)T' =&gt; (TE')T'</p>
-<p>yields a sentinel form where E' is followed by <code>)</code></p>
-<p>FOLLOW(T)</p>
-<p>P =&gt; E =&gt; TE' =&gt; T</p>
-<p>So, FOLLOW(T) contains $.</p>
-<p>TE' =&gt; T+TE'</p>
-<p>yields a sentinel form where T is followed by <code>+</code></p>
-<p>T =&gt; FT' =&gt; (E)T' =&gt; (TE')T' =&gt; (T)T'</p>
-<p>yields a sentinel form where T is followed by <code>)</code></p>
-<p>FOLLOW(T')</p>
-<p>P =&gt; E =&gt; TE' =&gt; FT'E' =&gt; FT' =&gt; T</p>
-<p>We know that FOLLOW(T) contains $</p>
-<p>T' =&gt; *FT' =&gt; *(E)T' =&gt; *(+TE')T' =&gt; *(+FT')T'</p>
-<p>yields a sentinel form where T' is followed by <code>)</code></p>
-<p>FT' =&gt; (E)T' =&gt; (TE')T' =&gt; (FT'E')T' =&gt; (FT'+TE)T'</p>
-<p>yields a sentinel form wherer T' is followed by <code>+</code></p>
-<p>FOLLOW(F)</p>
-<p>P =&gt; E =&gt; TE' =&gt; T =&gt; FT' =&gt; F</p>
-<p>So, Follow(F) contains $</p>
-<p>FT' =&gt; F*FT'</p>
-<p>yields a sentinel form where F is followd by <code>*</code></p>
-<p>TE' =&gt; T+TE' =&gt; FT'+TE' =&gt; F+TE'</p>
-<p>yields a sentinel form where F is followed by <code>+</code></p>
-<p>FT' =&gt; F*FT' =&gt; F*(E)T' =&gt; F*(TE')T' =&gt; F*(T)T' =&gt; F*(FT')T'
-=&gt; F*(F)T'</p>
-<p>yiels a sentinel form where F is followed by <code>)</code></p>
+<p>Let's find out the First sets initially. Let's try to find out
+<strong>FIRST(P)</strong>. Going back to the formal definition:</p>
+<p><strong>FIRST(P)</strong> is the set of terminals that being all strings given by
+<strong>P</strong>. Looking at the grammar, it is hard to come up for non terminal
+**P* since it depens on other non terminals. Let's try to move from
+*the non terminals at the end of the grammar:</p>
+<ul>
+<li>FIRST(F) = {(, int}</li>
+<li>FIRST(T') = {*, ϵ }</li>
+<li>FIRST(T) = {(, int } (Same as the first set of F)</li>
+<li>FIRST(E') = {ϵ, +}</li>
+<li>FIRST(E) = {(, int } (Same as the first set of T)</li>
+<li>FIRST(P) = {(, int } (Same as the first set of E)</li>
+</ul>
+<p>Now let's find out the Follow sets. Let's try to find out <strong>FOLLOW(P)</strong>.
+Going back to the formal definition:</p>
+<p><strong>FOLLOW(P)</strong> is the set of terminal that can come after non-terminal
+<strong>P</strong>, including $ if P occurs at the end of input.</p>
+<ul>
+<li>FOLLOW(P) = {$} (P represents the program and it includes $ since P
+occurs at the end of input).</li>
+<li>FOLLOW(E) = {),$} (For $, same logic as above)</li>
+<li>FOLLOW(E') = {),$} (F =&gt; (E) =&gt; (TE'), so it includes <strong>)</strong>)</li>
+<li>FOLLOW(T) = {),$, +}
+<ul>
+<li>Same as FOLLOW(E') since E -&gt; TE'</li>
+<li>Also includes <code>+</code> since E =&gt; TE' =&gt; T+TE'</li>
+</ul>
+</li>
+<li>FOLLOW(T') = {),$, +}
+<ul>
+<li>E =&gt; TE' =&gt; FT'E'. So same as FOLLOW(E')</li>
+<li>FT'E' =&gt; FT'+TE', so includes +</li>
+</ul>
+</li>
+<li>FOLLOW(F) = {),$,+,*}
+<ul>
+<li>Same as FOLLOW(T') since T =&gt; FT'</li>
+<li>Also includes <code>*</code> since FT' =&gt; F*FT'</li>
+</ul>
+</li>
+</ul>
 <h2 id="recursive-descent-parsing"><a class="header" href="#recursive-descent-parsing">Recursive Descent Parsing</a></h2>
 <ul>
 <li>LL(1) grammars are very amenable to write simple hand-coded parsers.</li>

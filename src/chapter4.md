@@ -189,17 +189,6 @@ Fixing the grammar will result in:
 
 [![](./images/c4_first_set.png)](./images/c4_first_set.png)
 
-For non terminals, it says this:
-
-For each rule X → *Y*<sub>1</sub>*Y*<sub>2</sub>...*Y*<sub>*k*</sub> in
-a grammar G:
-
--   FIRST(X) = a if FIRST(Y<sub>1</sub>) = a or (a =
-    FIRST(Y<sub>n</sub>) and Y<sub>1</sub>…Y<sub>n</sub>  ⇒ *ϵ* )
-
-In the above *a* = FIRST(*Y*<sub>*n*</sub>) refers to *n* where n can be
-1,2 or *n*
-
 *Y*<sub>1</sub>...*Y*<sub>*n* − 1</sub> ⇒ *ϵ* means
 *ϵ* ∈ FIRST(*Y*<sub>1</sub>)...*ϵ* ∈ FIRST(*Y*<sub>*n* − 1</sub>)
 
@@ -226,74 +215,40 @@ You can also use this [Haskell
 module](https://hackage.haskell.org/package/context-free-grammar-0.1.1/docs/Data-Cfg-Analysis.html)
 to find them. (Future todo: Write a blog post about it)
 
-Now for Grammer *G*<sub>9</sub>, let's find out the follow sets:
+Let's find out the First sets initially. Let's try to find out
+**FIRST(P)**. Going back to the formal definition:
 
-FOLLOW(P) = {$} since P is the start state.
+**FIRST(P)** is the set of terminals that being all strings given by
+**P**. Looking at the grammar, it is hard to come up for non terminal
+\*\*P\* since it depens on other non terminals. Let's try to move from
+\*the non terminals at the end of the grammar:
 
-FOLLOW(E)
+-   FIRST(F) = {(, int}
+-   FIRST(T') = {\*, ϵ }
+-   FIRST(T) = {(, int } (Same as the first set of F)
+-   FIRST(E') = {ϵ, +}
+-   FIRST(E) = {(, int } (Same as the first set of T)
+-   FIRST(P) = {(, int } (Same as the first set of E)
 
-FOLLOW(E) contains $ since the sentinel form E shows that. (P =\> E)
+Now let's find out the Follow sets. Let's try to find out **FOLLOW(P)**.
+Going back to the formal definition:
 
-E =\> TE' =\> FT'E' =\> (E)T'E'
+**FOLLOW(P)** is the set of terminal that can come after non-terminal
+**P**, including $ if P occurs at the end of input.
 
-yields a sentinel form where E is followed by `)`
-
-FOLLOW(E')
-
-P =\> E =\> TE' =\> E'
-
-So, FOLLOW(E') contains $.
-
-T =\> FT' =\> (E)T' =\> (TE')T'
-
-yields a sentinel form where E' is followed by `)`
-
-FOLLOW(T)
-
-P =\> E =\> TE' =\> T
-
-So, FOLLOW(T) contains $.
-
-TE' =\> T+TE'
-
-yields a sentinel form where T is followed by `+`
-
-T =\> FT' =\> (E)T' =\> (TE')T' =\> (T)T'
-
-yields a sentinel form where T is followed by `)`
-
-FOLLOW(T')
-
-P =\> E =\> TE' =\> FT'E' =\> FT' =\> T
-
-We know that FOLLOW(T) contains $
-
-T' =\> \*FT' =\> \*(E)T' =\> \*(+TE')T' =\> \*(+FT')T'
-
-yields a sentinel form where T' is followed by `)`
-
-FT' =\> (E)T' =\> (TE')T' =\> (FT'E')T' =\> (FT'+TE)T'
-
-yields a sentinel form wherer T' is followed by `+`
-
-FOLLOW(F)
-
-P =\> E =\> TE' =\> T =\> FT' =\> F
-
-So, Follow(F) contains $
-
-FT' =\> F\*FT'
-
-yields a sentinel form where F is followd by `*`
-
-TE' =\> T+TE' =\> FT'+TE' =\> F+TE'
-
-yields a sentinel form where F is followed by `+`
-
-FT' =\> F\*FT' =\> F\*(E)T' =\> F\*(TE')T' =\> F\*(T)T' =\> F\*(FT')T'
-=\> F\*(F)T'
-
-yiels a sentinel form where F is followed by `)`
+-   FOLLOW(P) = {$} (P represents the program and it includes $ since P
+    occurs at the end of input).
+-   FOLLOW(E) = {),$} (For $, same logic as above)
+-   FOLLOW(E') = {),$} (F =\> (E) =\> (TE'), so it includes **)**)
+-   FOLLOW(T) = {),$, +}
+    -   Same as FOLLOW(E') since E -\> TE'
+    -   Also includes `+` since E =\> TE' =\> T+TE'
+-   FOLLOW(T') = {),$, +}
+    -   E =\> TE' =\> FT'E'. So same as FOLLOW(E')
+    -   FT'E' =\> FT'+TE', so includes +
+-   FOLLOW(F) = {),$,+,\*}
+    -   Same as FOLLOW(T') since T =\> FT'
+    -   Also includes `*` since FT' =\> F\*FT'
 
 ## Recursive Descent Parsing
 
