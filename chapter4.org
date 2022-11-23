@@ -380,3 +380,145 @@ information.
   next token on the input is in ~FOLLOW(A)~. If a grammar can be
   parsed by this technique, we say it is an *SLR grammar*, which is a
   subset of LR(1) grammars.
+- Taking the example in the above automaton for State 4, there are two
+  possible cases:
+  - If the next token is ~(~, then we shift to state 5.
+  - If the next token is ~+,)~ or ~$~, then we reduce by the rule ~T
+    -> id~.
+- These decisions are encoded in *SLR parse tables* which are
+  historically known as *GOTO* and *ACTION*.
+
+todo: insert picture (SLR parse table creation)
+
+Let's follow the above algorithm to construct SLR parse table
+ourselves for grammar $G_{10}$. Some conventions to keep in mind:
+
+- Rn: n represents the Rule number (to which it has to reduce to).
+- Sn: n represents the state number (to which it has to shift to).
+- Gn: n represents the state number (to which it has to goto).
+
+The easy way to compute is to look at the LR(0) Automaton for the
+grammar.
+
+*** State 0
+
+The core idea of the above algorithm is that you create the *ACTION*
+table for the terminals and the *GOTO* table for non terminals. Using
+that let's construct the table for state zero:
+
+- A[0, id] = S4
+- G[0, E] = G1
+- G[0, T] = G8
+
+*** State 1
+
+- Follow(P) = $
+- A[1, +] = S2
+- A[0, $] = R1
+
+*** State 2
+
+- G[2, T] = G3
+- A[2, id] = S4
+
+*** State 3
+
+- Follow(E) = {$, ), +}
+- A[3, $] = R2
+- A[3, )] = R2
+- A[3, +] = R2
+
+*** State 4
+
+- Follow(T) = {$, ), +}
+- A[4, (] = S5
+- A[4, $] = R5
+- A[4, )] = R5
+- A[4, +] = R5
+
+*** State 5
+
+- A[5, id] = S4
+- G[5, E] = G6
+- G[5, T] = G8
+
+*** State 6
+
+- A[6, +] = S2
+- A[6, )] = S7
+
+*** State 7
+
+- Follow(T) = {$, ), +}
+- A[7, $] = R4
+- A[7, )] = R4
+- A[7, +] = R4
+
+*** State 8
+
+- Follow(E) = {$, ), +}
+- A[8, $] = R3
+- A[8, +] = R3
+- A[8, )] = R3
+
+And that corresponds with the SLR parse table given in the book:
+
+todo: insert pic (SLR parse table for Grammer g10)
+
+todo: insert pic (SLR parsing algorithm)
+
+todo: insert pic (table, page 57)
+
+Let's try to follow the first four steps of the above algorithm:
+
+*** Step 1
+
+- Stack: 0
+- Top of Stack: 0
+- Token: id
+- SLR parse table result = S4
+
+*** Step 2
+
+- Stack: 0 4
+- Top of Stack: 4
+- Token: (
+- SLR parse table result = S5
+
+*** Step 2
+
+- Stack: 0 4 5
+- Top of Stack 5
+- Token: id
+- SLR parse table result = S4
+
+*** Step 3
+
+- Stack: 0 4 5 4
+- Top of Stack 4
+- Token: +
+- SLR parse table result = R5
+  - It's reduce (T->id), pop state from stack.
+  - s = top element from stack
+  - Goto[5, T] = G8
+  - New stack: 0 4 5 8
+
+** Limitation
+
+- SLR is a subset of LR(1), and not all LR(1) grammars are SLR.
+
+todo: insert pic(page 58, g 11 grammar)
+
+- FOLLOW(S) = {$} and FOLLOW(V) = {=]$}
+- In state 1, we can reduce by S -> id or V -> id. However, both
+  FOLLOW(S) and FOLLOW(V ) contain $, so we cannot decide which to
+  take when the next token is end-of-file. Even using the FOLLOW sets,
+  there is still a reduce-reduce conflict. Therefore, Grammar G11 is
+  not an SLR grammar
+- But, if we look more closely at the possible sentences allowed by
+  the grammar, the distinction between the two becomes clear. Rule ~S
+  -> id~ would only be applied in the case where the complete sentence
+  is ~id$~. If any other character follows, we apply ~V -> id~. So the
+  grammar is not ambigous, we need a more powerful parser.
+
+* LR(1) Parsing
