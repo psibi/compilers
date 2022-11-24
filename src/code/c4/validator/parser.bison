@@ -1,7 +1,6 @@
 %{
 #include <stdio.h>
-void yyerror(char const *s);
-
+int yylex();
 void yyerror (char const *s) {
     fprintf (stderr, "%s\n", s);
 }

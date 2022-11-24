@@ -70,4 +70,12 @@ The main body of the file contains a series of rules of the form:
   integer token types. This can be written by hand or generated
   automatically by Flex.
 
-# {{#include "code/c4/validator/parser.bison"}}
+#+begin_src sh :exports both
+bison --defines=token.h --output=parser.c parser.bison
+#+end_src
+
+- The ~--output=parser.c~ option directs Bison to write its code into
+  the file ~parser.c~ instead of the cryptic ~yy.tab.c~
+- If your grammar has shift-reduce or reduce-reduce conflicts, Bison
+  will happily output working code with some of the conflicting
+  actions suppressed. Always check for conflicts before proceeding.
