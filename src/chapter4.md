@@ -395,7 +395,7 @@ information.
 -   These decisions are encoded in **SLR parse tables** which are
     historically known as **GOTO** and **ACTION**.
 
-todo: insert picture (SLR parse table creation)
+[![](./images/c4_slr_parse_table_creation.png)](./images/c4_slr_parse_table_creation.png)
 
 Let's follow the above algorithm to construct SLR parse table ourselves
 for grammar *G*<sub>10</sub>. Some conventions to keep in mind:
@@ -470,11 +470,11 @@ that let's construct the table for state zero:
 
 And that corresponds with the SLR parse table given in the book:
 
-todo: insert pic (SLR parse table for Grammer g10)
+[![](./images/c4_slr_parse_table.png)](./images/c4_slr_parse_table.png)
 
-todo: insert pic (SLR parsing algorithm)
+[![](./images/c4_slr_parse_algorithm.png)](./images/c4_slr_parse_algorithm.png)
 
-todo: insert pic (table, page 57)
+[![](./images/c4_slr_parse.png)](./images/c4_slr_parse.png)
 
 Let's try to follow the first four steps of the above algorithm:
 
@@ -514,7 +514,7 @@ Let's try to follow the first four steps of the above algorithm:
 
 -   SLR is a subset of LR(1), and not all LR(1) grammars are SLR.
 
-todo: insert pic(page 58, g 11 grammar)
+[![](./images/c4_g11.png)](./images/c4_g11.png)
 
 -   FOLLOW(S) = {$} and FOLLOW(V) = {=\]$}
 -   In state 1, we can reduce by S -\> id or V -\> id. However, both
@@ -537,13 +537,13 @@ todo: insert pic(page 58, g 11 grammar)
 -   This set is known as the lookahead of the item. The lookahead is
     always a subset of the FOLLOW of the relevant non-terminal.
 
-todo: insert pic(page 59)
+[![](./images/c4_lr1.png)](./images/c4_lr1.png)
 
-todo: insert pic (page 60)
+[![](./images/c4_lr1_2.png)](./images/c4_lr1_2.png)
 
 -   Now you can see how the lookahead solves the reduce-reduce conflict.
 
-todo: inser pic (page 61)
+[![](./images/c4_lr1_automaton.png)](./images/c4_lr1_automaton.png)
 
 One aspect of state zero is worth clarifying. When constructing the
 closure of a state, we must consider all rules in the grammar, including
@@ -569,7 +569,7 @@ of {<s>}. So, we add E -\> . E + T again, this time with a lookahead of
 -   When several LR(1) items are merged into one LALR item, the LALR
     lookahead is the union of the lookaheads of the LR(1) items.
 
-todo: insert pic (62)
+[![](./images/c4_lalr.png)](./images/c4_lalr.png)
 
 -   The resulting LALR automaton has the same number of states as the
     LR(0) automaton, but has more precise lookahead information
@@ -577,7 +577,7 @@ todo: insert pic (62)
 
 # Grammar Classes Revisited
 
-todo: insert pic (62)
+[![](./images/c4_grammars.png)](./images/c4_grammars.png)
 
 ## CFG
 
