@@ -79,3 +79,21 @@ bison --defines=token.h --output=parser.c parser.bison
 - If your grammar has shift-reduce or reduce-reduce conflicts, Bison
   will happily output working code with some of the conflicting
   actions suppressed. Always check for conflicts before proceeding.
+
+Filename: scanner.flex
+
+#+begin_src c
+{{#include code/c4/validator/scanner.flex}}
+#+end_src
+
+Filename: parser.bison
+
+#+begin_src c
+{{#include code/c4/validator/parser.bison}}
+#+end_src
+
+Filename: main.c
+
+#+begin_src c
+{{#include code/c4/validator/main.c}}
+#+end_src

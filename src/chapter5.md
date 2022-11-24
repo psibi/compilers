@@ -69,3 +69,31 @@ expr : expr TOKEN_ADD expr
 -   `yyparse` assumes that there exists a function `yylex` that returns
     integer token types. This can be written by hand or generated
     automatically by Flex.
+
+``` bash
+bison --defines=token.h --output=parser.c parser.bison
+```
+
+-   The `--output=parser.c` option directs Bison to write its code into
+    the file `parser.c` instead of the cryptic `yy.tab.c`
+-   If your grammar has shift-reduce or reduce-reduce conflicts, Bison
+    will happily output working code with some of the conflicting
+    actions suppressed. Always check for conflicts before proceeding.
+
+Filename: scanner.flex
+
+``` c
+{{#include code/c4/validator/scanner.flex}}
+```
+
+Filename: parser.bison
+
+``` c
+{{#include code/c4/validator/parser.bison}}
+```
+
+Filename: main.c
+
+``` c
+{{#include code/c4/validator/main.c}}
+```

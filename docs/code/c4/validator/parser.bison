@@ -1,5 +1,9 @@
 %{
 #include <stdio.h>
+int yylex();
+void yyerror (char const *s) {
+    fprintf (stderr, "%s\n", s);
+}
 %}
 %token TOKEN_INT
 %token TOKEN_PLUS
@@ -25,4 +29,3 @@ factor: TOKEN_MINUS factor
 | TOKEN_INT
 ;
 %%
-int yywrap() { return 0; }

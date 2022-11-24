@@ -205,6 +205,82 @@ returns an integer:
 integer token types. This can be written by hand or generated
 automatically by Flex.</li>
 </ul>
+<pre><code class="language-bash">bison --defines=token.h --output=parser.c parser.bison
+</code></pre>
+<ul>
+<li>The <code>--output=parser.c</code> option directs Bison to write its code into
+the file <code>parser.c</code> instead of the cryptic <code>yy.tab.c</code></li>
+<li>If your grammar has shift-reduce or reduce-reduce conflicts, Bison
+will happily output working code with some of the conflicting
+actions suppressed. Always check for conflicts before proceeding.</li>
+</ul>
+<p>Filename: scanner.flex</p>
+<pre><code class="language-c">%{
+#include &quot;token.h&quot;
+%}
+DIGIT  [0-9]
+LETTER [a-zA-Z]
+%%
+(&quot; &quot;|\t|\n) /* skip whitespace */
+{DIGIT}+  { return TOKEN_INT; }
+\+        { return TOKEN_PLUS; }
+\-        { return TOKEN_MINUS; }
+\*        { return TOKEN_MUL; }
+\/        { return TOKEN_DIV; }
+\(        { return TOKEN_LPAREN; }
+\)        { return TOKEN_RPAREN; }
+\;        { return TOKEN_SEMI; }
+.         { return TOKEN_ERROR; }
+%%
+int yywrap() { return 1; }
+</code></pre>
+<p>Filename: parser.bison</p>
+<pre><code class="language-c">%{
+#include &lt;stdio.h&gt;
+int yylex();
+void yyerror (char const *s) {
+    fprintf (stderr, &quot;%s\n&quot;, s);
+}
+%}
+%token TOKEN_INT
+%token TOKEN_PLUS
+%token TOKEN_MINUS
+%token TOKEN_MUL
+%token TOKEN_DIV
+%token TOKEN_LPAREN
+%token TOKEN_RPAREN
+%token TOKEN_SEMI
+%token TOKEN_ERROR
+%%
+program : expr TOKEN_SEMI;
+expr : expr TOKEN_PLUS term
+| expr TOKEN_MINUS term
+| term
+;
+term : term TOKEN_MUL factor
+| term TOKEN_DIV factor
+| factor
+;
+factor: TOKEN_MINUS factor
+| TOKEN_LPAREN expr TOKEN_RPAREN
+| TOKEN_INT
+;
+%%
+</code></pre>
+<p>Filename: main.c</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+extern int yyparse();
+
+int main()
+{
+  if(yyparse()==0) {
+    printf(&quot;Parse successful!\n&quot;);
+  } else {
+    printf(&quot;Parse failed.\n&quot;);
+  }
+}
+</code></pre>
 
                     </main>
 
@@ -226,6 +302,22 @@ automatically by Flex.</li>
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script type="text/javascript">
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
         <script type="text/javascript">
             window.playground_copyable = true;
         </script>
