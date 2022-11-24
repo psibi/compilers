@@ -16,3 +16,9 @@ serve:
 # Clean markdown files
 clean:
     rm src/cha*.md
+
+# Add images as git lfs
+lfs-images:
+    git lfs track images/*png
+    git lfs track src/images/*png
+    git lfs track docs/images/*png

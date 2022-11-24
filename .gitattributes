@@ -206,3 +206,5 @@ docs/images/c3_minimization_algo.png filter=lfs diff=lfs merge=lfs -text
 docs/images/c4_g4.png filter=lfs diff=lfs merge=lfs -text
 docs/images/c4_slr_parse_algorithm.png filter=lfs diff=lfs merge=lfs -text
 images/c4_chomsky.png filter=lfs diff=lfs merge=lfs -text
+src/images/c4_chomsky.png filter=lfs diff=lfs merge=lfs -text
+docs/images/c4_chomsky.png filter=lfs diff=lfs merge=lfs -text
