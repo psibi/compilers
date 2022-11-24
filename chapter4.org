@@ -630,7 +630,7 @@ a stack to keep track of the parse state.
   corresponding grammars) and relates them to the abstract computing
   machinery necessary to recognize such a language.
 
-todo: insert pic (page 64)
+[[./images/c4_chomsky.png][./images/c4_chomsky.png]]
 
 ** Regular Languages
 
