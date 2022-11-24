@@ -76,7 +76,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="chapter1.html"><strong aria-hidden="true">1.</strong> Chapter 1: Introduction</a></li><li class="chapter-item expanded "><a href="chapter2.html"><strong aria-hidden="true">2.</strong> Chapter 2: A Quick Tour</a></li><li class="chapter-item expanded "><a href="chapter3.html"><strong aria-hidden="true">3.</strong> Chapter 3: Scanning</a></li><li class="chapter-item expanded "><a href="chapter4.html"><strong aria-hidden="true">4.</strong> Chapter 4: Parsing</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="chapter1.html"><strong aria-hidden="true">1.</strong> Chapter 1: Introduction</a></li><li class="chapter-item expanded "><a href="chapter2.html"><strong aria-hidden="true">2.</strong> Chapter 2: A Quick Tour</a></li><li class="chapter-item expanded "><a href="chapter3.html"><strong aria-hidden="true">3.</strong> Chapter 3: Scanning</a></li><li class="chapter-item expanded "><a href="chapter4.html"><strong aria-hidden="true">4.</strong> Chapter 4: Parsing</a></li><li class="chapter-item expanded "><a href="chapter5.html"><strong aria-hidden="true">5.</strong> Chapter 5: Parsing in Practice</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -454,7 +454,92 @@ produces regular C code that can then be compiled in the normal way.</p>
 <code>yywrap()</code> which returns 1 to indicate that the input is complete at the
 end of the file. If we wanted to continue scanning in another file, then
 <code>yywrap()</code> would open the next file and return 0.</p>
-<pre><code class="language-bash">ls /
+<h2 id="syntax"><a class="header" href="#syntax">Syntax</a></h2>
+<ul>
+<li>The regular expression language accepted by Flex is very similar to
+that of formal regular expressions discussed above.</li>
+<li>The main difference is that characters that have special meaning
+with a regular expression (like parentheses, square brackets, and
+asterisks) must be escaped with a backslash or surrounded with
+double quotes.</li>
+<li>Also, a period (.) can be used to match any character at all, which
+is helpful for catching error conditions.</li>
+</ul>
+<h2 id="other-details"><a class="header" href="#other-details">Other details</a></h2>
+<ul>
+<li>Flex generates the scanner code, but not a complete program, so you
+must write a main function to go with it.</li>
+<li>The main program must declar as
+<a href="https://stackoverflow.com/questions/856636/effects-of-the-extern-keyword-on-c-functions"><strong>extern</strong></a>
+the symbols it expects to use in the generated scanner code:
+<ul>
+<li><code>yyin</code> is the file from which text will be read</li>
+<li><code>yylex</code> is the function that implements the scanner</li>
+<li>array <code>yytext</code> contains the actual text of each token discovered</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-bash">flex -o scanner.c scanner.flex
+</code></pre>
+<h2 id="source-code"><a class="header" href="#source-code">Source code</a></h2>
+<p>Filename: token.h</p>
+<pre><code class="language-c">typedef enum {
+  TOKEN_EOF=0,
+  TOKEN_WHILE,
+  TOKEN_ADD,
+  TOKEN_IDENT,
+  TOKEN_NUMBER,
+  TOKEN_ERROR
+} token_t;
+</code></pre>
+<p>Filename: scanner.flex</p>
+<pre><code class="language-c">%{
+#include &quot;token.h&quot;
+%}
+DIGIT  [0-9]
+LETTER [a-zA-Z]
+%%
+(&quot; &quot;|\t|\n) /* skip whitespace */
+\+        { return TOKEN_ADD; }
+while     { return TOKEN_WHILE; }
+{LETTER}+ { return TOKEN_IDENT; }
+{DIGIT}+  { return TOKEN_NUMBER; }
+.         { return TOKEN_ERROR; }
+%%
+int yywrap() { return 1; }
+</code></pre>
+<p>Filename: main.c</p>
+<pre><code class="language-c">#include &quot;token.h&quot;
+#include &lt;stdio.h&gt;
+
+extern FILE *yyin;
+extern int yylex();
+extern char *yytext;
+
+int main() {
+  /* yyin = fopen(&quot;program.c&quot;,&quot;r&quot;); */
+  FILE *yyin = stdin;
+  if(!yyin) {
+    printf(&quot;could not open program.c!\n&quot;);
+    return 1;
+  }
+  while(1) {
+    token_t t = yylex();
+    if(t==TOKEN_EOF) break;
+    printf(&quot;token: %d text: %s\n&quot;,t,yytext);
+  }
+}
+</code></pre>
+<p>Sample session:</p>
+<pre><code class="language-bash">❯ ./one
+hello world 32234
+token: 3 text: hello
+token: 3 text: world
+token: 4 text: 32234
+fooboar
+token: 3 text: fooboar
+   3
+token: 4 text: 3
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="parsing"><a class="header" href="#parsing">Parsing</a></h1>
 <h1 id="overview"><a class="header" href="#overview">Overview</a></h1>
@@ -812,6 +897,378 @@ use <code>FOLLOW</code> sets to resolve conflicts in the <code>LR(0)</code> auto
 on the input is in <code>FOLLOW(A)</code>. If a grammar can be parsed by this
 technique, we say it is an <strong>SLR grammar</strong>, which is a subset of
 LR(1) grammars.</li>
+<li>Taking the example in the above automaton for State 4, there are two
+possible cases:
+<ul>
+<li>If the next token is <code>(</code>, then we shift to state 5.</li>
+<li>If the next token is <code>+,)</code> or <code>$</code>, then we reduce by the rule <code>T -&gt; id</code>.</li>
+</ul>
+</li>
+<li>These decisions are encoded in <strong>SLR parse tables</strong> which are
+historically known as <strong>GOTO</strong> and <strong>ACTION</strong>.</li>
+</ul>
+<p>todo: insert picture (SLR parse table creation)</p>
+<p>Let's follow the above algorithm to construct SLR parse table ourselves
+for grammar <em>G</em><sub>10</sub>. Some conventions to keep in mind:</p>
+<ul>
+<li>Rn: n represents the Rule number (to which it has to reduce to).</li>
+<li>Sn: n represents the state number (to which it has to shift to).</li>
+<li>Gn: n represents the state number (to which it has to goto).</li>
+</ul>
+<p>The easy way to compute is to look at the LR(0) Automaton for the
+grammar.</p>
+<h3 id="state-0"><a class="header" href="#state-0">State 0</a></h3>
+<p>The core idea of the above algorithm is that you create the <strong>ACTION</strong>
+table for the terminals and the <strong>GOTO</strong> table for non terminals. Using
+that let's construct the table for state zero:</p>
+<ul>
+<li>A[0, id] = S4</li>
+<li>G[0, E] = G1</li>
+<li>G[0, T] = G8</li>
+</ul>
+<h3 id="state-1"><a class="header" href="#state-1">State 1</a></h3>
+<ul>
+<li>Follow(P) = $</li>
+<li>A[1, +] = S2</li>
+<li>A[0, $] = R1</li>
+</ul>
+<h3 id="state-2"><a class="header" href="#state-2">State 2</a></h3>
+<ul>
+<li>G[2, T] = G3</li>
+<li>A[2, id] = S4</li>
+</ul>
+<h3 id="state-3"><a class="header" href="#state-3">State 3</a></h3>
+<ul>
+<li>Follow(E) = {$, ), +}</li>
+<li>A[3, $] = R2</li>
+<li>A[3, )] = R2</li>
+<li>A[3, +] = R2</li>
+</ul>
+<h3 id="state-4"><a class="header" href="#state-4">State 4</a></h3>
+<ul>
+<li>Follow(T) = {$, ), +}</li>
+<li>A[4, (] = S5</li>
+<li>A[4, $] = R5</li>
+<li>A[4, )] = R5</li>
+<li>A[4, +] = R5</li>
+</ul>
+<h3 id="state-5"><a class="header" href="#state-5">State 5</a></h3>
+<ul>
+<li>A[5, id] = S4</li>
+<li>G[5, E] = G6</li>
+<li>G[5, T] = G8</li>
+</ul>
+<h3 id="state-6"><a class="header" href="#state-6">State 6</a></h3>
+<ul>
+<li>A[6, +] = S2</li>
+<li>A[6, )] = S7</li>
+</ul>
+<h3 id="state-7"><a class="header" href="#state-7">State 7</a></h3>
+<ul>
+<li>Follow(T) = {$, ), +}</li>
+<li>A[7, $] = R4</li>
+<li>A[7, )] = R4</li>
+<li>A[7, +] = R4</li>
+</ul>
+<h3 id="state-8"><a class="header" href="#state-8">State 8</a></h3>
+<ul>
+<li>Follow(E) = {$, ), +}</li>
+<li>A[8, $] = R3</li>
+<li>A[8, +] = R3</li>
+<li>A[8, )] = R3</li>
+</ul>
+<p>And that corresponds with the SLR parse table given in the book:</p>
+<p>todo: insert pic (SLR parse table for Grammer g10)</p>
+<p>todo: insert pic (SLR parsing algorithm)</p>
+<p>todo: insert pic (table, page 57)</p>
+<p>Let's try to follow the first four steps of the above algorithm:</p>
+<h3 id="step-1"><a class="header" href="#step-1">Step 1</a></h3>
+<ul>
+<li>Stack: 0</li>
+<li>Top of Stack: 0</li>
+<li>Token: id</li>
+<li>SLR parse table result = S4</li>
+</ul>
+<h3 id="step-2"><a class="header" href="#step-2">Step 2</a></h3>
+<ul>
+<li>Stack: 0 4</li>
+<li>Top of Stack: 4</li>
+<li>Token: (</li>
+<li>SLR parse table result = S5</li>
+</ul>
+<h3 id="step-2-1"><a class="header" href="#step-2-1">Step 2</a></h3>
+<ul>
+<li>Stack: 0 4 5</li>
+<li>Top of Stack 5</li>
+<li>Token: id</li>
+<li>SLR parse table result = S4</li>
+</ul>
+<h3 id="step-3"><a class="header" href="#step-3">Step 3</a></h3>
+<ul>
+<li>Stack: 0 4 5 4</li>
+<li>Top of Stack 4</li>
+<li>Token: +</li>
+<li>SLR parse table result = R5
+<ul>
+<li>It's reduce (T-&gt;id), pop state from stack.</li>
+<li>s = top element from stack</li>
+<li>Goto[5, T] = G8</li>
+<li>New stack: 0 4 5 8</li>
+</ul>
+</li>
+</ul>
+<h2 id="limitation"><a class="header" href="#limitation">Limitation</a></h2>
+<ul>
+<li>SLR is a subset of LR(1), and not all LR(1) grammars are SLR.</li>
+</ul>
+<p>todo: insert pic(page 58, g 11 grammar)</p>
+<ul>
+<li>FOLLOW(S) = {$} and FOLLOW(V) = {=]$}</li>
+<li>In state 1, we can reduce by S -&gt; id or V -&gt; id. However, both
+FOLLOW(S) and FOLLOW(V ) contain $, so we cannot decide which to
+take when the next token is end-of-file. Even using the FOLLOW sets,
+there is still a reduce-reduce conflict. Therefore, Grammar G11 is
+not an SLR grammar</li>
+<li>But, if we look more closely at the possible sentences allowed by
+the grammar, the distinction between the two becomes clear. Rule <code>S -&gt; id</code> would only be applied in the case where the complete
+sentence is <code>id$</code>. If any other character follows, we apply
+<code>V -&gt; id</code>. So the grammar is not ambigous, we need a more powerful
+parser.</li>
+</ul>
+<h1 id="lr1-parsing"><a class="header" href="#lr1-parsing">LR(1) Parsing</a></h1>
+<ul>
+<li>The LR(1) automaton is like the LR(0) automaton, except that each
+item is annotated with the set of tokens that could potentially
+follow it, given the current parsing state.</li>
+<li>This set is known as the lookahead of the item. The lookahead is
+always a subset of the FOLLOW of the relevant non-terminal.</li>
+</ul>
+<p>todo: insert pic(page 59)</p>
+<p>todo: insert pic (page 60)</p>
+<ul>
+<li>Now you can see how the lookahead solves the reduce-reduce conflict.</li>
+</ul>
+<p>todo: inser pic (page 61)</p>
+<p>One aspect of state zero is worth clarifying. When constructing the
+closure of a state, we must consider all rules in the grammar, including
+the rule corresponding to the item under closure. The item E -&gt; .E + T
+is initially added with a lookahead of {$}. Then, evaluating that item,
+we add all rules that have E on the left hand side, adding a lookahead
+of {<s>}. So, we add E -&gt; . E + T again, this time with a lookahead of
+{</s>}, resulting in a single item with a lookahead set of {$, +}</p>
+<h1 id="lalr-parsing"><a class="header" href="#lalr-parsing">LALR Parsing</a></h1>
+<ul>
+<li>The main downside to LR(1) parsing is that the LR(1) automaton can
+be much larger than the LR(0) automaton.</li>
+<li>Any two states that have the same items but differ in lookahead sets
+for any items are considered to be different states. The result is
+enormous parse tables that consume large amounts of memory and slow
+down the parsing algorithm.</li>
+<li><strong>Lookahead LR (LALR)</strong> parsing is the practical answer to this
+problem.</li>
+<li>To construct an LALR parser, we first create the LR(1) automaton,
+and then merge states that have the same core. The core of a state
+is simply the body of an item, ignoring the lookahead.</li>
+<li>When several LR(1) items are merged into one LALR item, the LALR
+lookahead is the union of the lookaheads of the LR(1) items.</li>
+</ul>
+<p>todo: insert pic (62)</p>
+<ul>
+<li>The resulting LALR automaton has the same number of states as the
+LR(0) automaton, but has more precise lookahead information
+available for each item.</li>
+</ul>
+<h1 id="grammar-classes-revisited"><a class="header" href="#grammar-classes-revisited">Grammar Classes Revisited</a></h1>
+<p>todo: insert pic (62)</p>
+<h2 id="cfg"><a class="header" href="#cfg">CFG</a></h2>
+<ul>
+<li>A context-free grammar is any grammar whose rules have the form A →</li>
+</ul>
+<p>α.</p>
+<ul>
+<li>To parse any CFG, we require a finite automaton (a parse table) and</li>
+</ul>
+<p>a stack to keep track of the parse state.</p>
+<ul>
+<li>An arbitrary CFG can be ambiguous. An ambiguous CFG will result in a
+non-deterministic finite automaton, which is not practical to use.</li>
+</ul>
+<h2 id="lrk"><a class="header" href="#lrk">LR(k)</a></h2>
+<ul>
+<li>An LR(k) parser performs a bottom-up *L*eft to right scan of the
+input and provides a *R*ight-most parse, deciding what rule to
+apply next by examining the next <code>k</code> tokens on the input.</li>
+<li>A canonical LR(1) parser requires a very large finite automaton,
+because the possible lookaheads are encoded into the states.</li>
+<li>While strictly a subset of CFGs, nearly all realworld language
+constructs can be expressed adequately in LR(1).</li>
+</ul>
+<h2 id="lalr"><a class="header" href="#lalr">LALR</a></h2>
+<ul>
+<li>A Lookahead-LR parser is created by first constructing a canonical
+LR(1) parser, and then merging all itemsets that have the same core.</li>
+<li>This yields a much smaller finite automaton, while retaining some
+detailed lookahead information.</li>
+<li>While less powerful than canonical LR(1) in theory, LALR is usually
+sufficient to express real-world languages.</li>
+</ul>
+<h2 id="slr"><a class="header" href="#slr">SLR</a></h2>
+<ul>
+<li>A Simple-LR parser approximates an LR(1) parser by constructing the
+LR(0) state machine, and then relying on the FIRST and FOLLOW sets
+to select which rule to apply.</li>
+<li>SLR is simple and compact, but there are easy-to-find examples of
+common constructs that it cannot parse.</li>
+</ul>
+<h2 id="llk"><a class="header" href="#llk">LL(k)</a></h2>
+<ul>
+<li>An LL(k) parser performs a top-down *L*eft to right scan of the
+input and provides a *L*eft-most parse, deciding what rule to
+apply next by examining the next <code>k</code> tokens on the input.</li>
+<li>LL(1) parsers are simple and widely used because they require a
+table that is only O(nt) where t is the number of tokens, and n is
+the number of non-terminals</li>
+<li>LL(k) parsers are less practical for k &gt; 1 because the size of the
+parse table is O(n (t<sup>k</sup>) ) in the worst case.</li>
+<li>They often require that a grammar be rewritten to be more amenable
+to the parser, and are not able to express all common language
+structures.</li>
+</ul>
+<h1 id="the-chomsky-hierarchy"><a class="header" href="#the-chomsky-hierarchy">The Chomsky Hierarchy</a></h1>
+<ul>
+<li>Named after noted linguist Noam Chomsky.</li>
+<li>The hierarchy describes four categories of languages (and
+corresponding grammars) and relates them to the abstract computing
+machinery necessary to recognize such a language.</li>
+</ul>
+<p>todo: insert pic (page 64)</p>
+<h2 id="regular-languages"><a class="header" href="#regular-languages">Regular Languages</a></h2>
+<ul>
+<li>Regular languages are those described by regular expressions.</li>
+<li>Every regular expression corresponds to a finite automaton that can
+be used to identify all words in the corresponding language.</li>
+<li>As you know, a finite automaton can be implemented with the very
+simple mechanism of a table and a single integer to represent the
+current state. So, a scanner for a regular language is very easy to
+implement efficiently.</li>
+</ul>
+<h2 id="context-free-languages"><a class="header" href="#context-free-languages">Context Free languages</a></h2>
+<ul>
+<li>Context free languages are those described by context free grammars
+where each rule is of the form A → γ, with a single non-terminal on
+the left hand side, and a mix of terminals and non-terminals on the
+right hand side.</li>
+<li>We call these “context free” because the meaning of a non-terminal
+is the same in all places where it appears.</li>
+<li>As you have learned in this chapter, a CFG requires a pushdown
+automaton, which is achieved by coupling a finite automaton with a
+stack.</li>
+</ul>
+<h2 id="context-sensitive-languages"><a class="header" href="#context-sensitive-languages">Context sensitive languages</a></h2>
+<ul>
+<li>Context sensitive languages are those described by context sensitive
+grammars where each rule can be of the form αAβ → αγβ.</li>
+<li>We call these “context sensitive” because the interpretation of a
+non-terminal is controlled by context in which it appears.</li>
+<li>Context sensitive languages require a non-deterministic linear
+bounded automaton, which is bounded in memory consumption, but not
+in execution time.</li>
+<li>Context sensitive languages are not very practical for computer
+languages.</li>
+</ul>
+<h2 id="recursively-enumerable-languages"><a class="header" href="#recursively-enumerable-languages">Recursively enumerable languages</a></h2>
+<ul>
+<li>Are the least restrictive set of languages, described by rules of
+the form α → β where α and β can be any combination of terminals and
+non-terminals.</li>
+<li>These languages can only be recognized by a full Turing machine, and
+are the least practical of all.</li>
+</ul>
+<p>The Chomsky Hierarchy is a specific example of a more general principle
+for the design of languages and compilers:</p>
+<p><strong>The least powerful language gives the strongest guarantees.</strong></p>
+<p>That is to say, if we have a problem to be solved, it should be attacked
+using the least expressive tool that is capable of addressing the
+problem. If we can solve a given problem by employing REs instead of
+CFGs, then we should use REs, because they consume less state, have
+simpler machinery, and present fewer roadblocks to a solution.</p>
+<p>The same advice applies more broadly: assembly language is the most
+powerful language available in our toolbox and is capable of expressing
+any program that the computer is capable of executing. However, assembly
+language is also the most difficult to use because it gives none of the
+guarantees found in higher level languages. Higher level languages are
+less powerful than assembly language, and this is what makes them more
+predictable, reliable, and congenial to use.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="parsing-in-practice"><a class="header" href="#parsing-in-practice">Parsing in Practice</a></h1>
+<ul>
+<li>While LL(1) parsers are commonly written by hand, LR(1) parsers are
+simply too cumbersome to do the same.</li>
+<li>Instead, we rely upon a <strong>parser generator</strong> to take a specification
+of a grammar and automatically produce the working code.</li>
+<li>In this chapter, we will look into <strong>Bison</strong>.</li>
+</ul>
+<p>Using Bison, we will define an LALR grammar for algebraic expressions,
+and then employ it to create three different varieties of programs:</p>
+<ul>
+<li>A <strong>validator</strong> reads the input program and then simply informs the
+user whether it is a valid sentence in the language specified by the
+grammar.</li>
+<li>An <strong>interpreter</strong> reads the input program and then actually
+executes the program to produce a result.</li>
+<li>A <strong>translator</strong> reads the input program, parses it into an abstract
+syntax tree, and then traverses the abstract syntax tree to produce
+an equivalent program in a different format.</li>
+</ul>
+<h1 id="the-bison-parser-generator"><a class="header" href="#the-bison-parser-generator">The Bison Parser Generator</a></h1>
+<ul>
+<li>It is not practical to implement an LALR parser by hand, and so we
+rely on tools to automatically generate tables and code from a
+grammar specification.</li>
+<li>YACC (Yet Another Compiler Compiler) was a widely used parser
+generator in the Unix environment, recently supplanted by the GNU
+Bison parser which is generally compatible.</li>
+<li>Bison is designed to automatically invoke Flex as needed, so it is
+easy to combine the two into a complete program.</li>
+</ul>
+<p>The overall structure of a Bison file is similar to that of Flex:</p>
+<pre><code class="language-bison">%{
+   (C PREAMBLE CODE)
+%}
+   (declarations)
+%%
+   (grammar rules)
+%%
+   (C postamble code)
+</code></pre>
+<ul>
+<li>The second section can contain a variety of declarations specific to
+the Bison language. We will use the <code>%token</code> keyword to declare all
+of the terminals in our language.</li>
+</ul>
+<p>The main body of the file contains a series of rules of the form:</p>
+<pre><code class="language-bison">expr : expr TOKEN_ADD expr
+     | TOKEN_INT
+     ;
+</code></pre>
+<ul>
+<li>The above code indicats that the non terminal <code>expr</code> can produce the
+sentence <code>expr TOKEN_ADD expr</code> or single terminal <code>TOKEN_INT</code>.</li>
+<li>White space is not significant, so it’s ok to arrange the rules for
+clarity.</li>
+<li>Note that the usual naming convention is reversed: since upper case
+is customarily used for C constants, we use lower case to indicate
+non-terminals.</li>
+<li>The resulting code creates a single function <code>yyparse()</code> than
+returns an integer:
+<ul>
+<li>zero indicates a successful parse</li>
+<li>one indicates a parse error</li>
+<li>two indicates an internal problem such as memory exhaustion</li>
+</ul>
+</li>
+<li><code>yyparse</code> assumes that there exists a function <code>yylex</code> that returns
+integer token types. This can be written by hand or generated
+automatically by Flex.</li>
 </ul>
 
                     </main>

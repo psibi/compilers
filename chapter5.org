@@ -70,4 +70,4 @@ The main body of the file contains a series of rules of the form:
   integer token types. This can be written by hand or generated
   automatically by Flex.
 
-{{#include "code/c4/validator/parser.bison"}}
+# {{#include "code/c4/validator/parser.bison"}}

@@ -313,6 +313,62 @@ A peculiar requirement of Flex is that we must define a function
 end of the file. If we wanted to continue scanning in another file, then
 `yywrap()` would open the next file and return 0.
 
+## Syntax
+
+-   The regular expression language accepted by Flex is very similar to
+    that of formal regular expressions discussed above.
+-   The main difference is that characters that have special meaning
+    with a regular expression (like parentheses, square brackets, and
+    asterisks) must be escaped with a backslash or surrounded with
+    double quotes.
+-   Also, a period (.) can be used to match any character at all, which
+    is helpful for catching error conditions.
+
+## Other details
+
+-   Flex generates the scanner code, but not a complete program, so you
+    must write a main function to go with it.
+-   The main program must declar as
+    [**extern**](https://stackoverflow.com/questions/856636/effects-of-the-extern-keyword-on-c-functions)
+    the symbols it expects to use in the generated scanner code:
+    -   `yyin` is the file from which text will be read
+    -   `yylex` is the function that implements the scanner
+    -   array `yytext` contains the actual text of each token discovered
+
 ``` bash
-ls /
+flex -o scanner.c scanner.flex
+```
+
+## Source code
+
+Filename: token.h
+
+``` c
+{{#include code/c3/token.h}}
+```
+
+Filename: scanner.flex
+
+``` c
+{{#include code/c3/scanner.flex}}
+```
+
+Filename: main.c
+
+``` c
+{{#include code/c3/main.c}}
+```
+
+Sample session:
+
+``` bash
+❯ ./one
+hello world 32234
+token: 3 text: hello
+token: 3 text: world
+token: 4 text: 32234
+fooboar
+token: 3 text: fooboar
+   3
+token: 4 text: 3
 ```

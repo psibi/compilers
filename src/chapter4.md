@@ -387,3 +387,318 @@ information.
     on the input is in `FOLLOW(A)`. If a grammar can be parsed by this
     technique, we say it is an **SLR grammar**, which is a subset of
     LR(1) grammars.
+-   Taking the example in the above automaton for State 4, there are two
+    possible cases:
+    -   If the next token is `(`, then we shift to state 5.
+    -   If the next token is `+,)` or `$`, then we reduce by the rule `T
+         -> id`.
+-   These decisions are encoded in **SLR parse tables** which are
+    historically known as **GOTO** and **ACTION**.
+
+todo: insert picture (SLR parse table creation)
+
+Let's follow the above algorithm to construct SLR parse table ourselves
+for grammar *G*<sub>10</sub>. Some conventions to keep in mind:
+
+-   Rn: n represents the Rule number (to which it has to reduce to).
+-   Sn: n represents the state number (to which it has to shift to).
+-   Gn: n represents the state number (to which it has to goto).
+
+The easy way to compute is to look at the LR(0) Automaton for the
+grammar.
+
+### State 0
+
+The core idea of the above algorithm is that you create the **ACTION**
+table for the terminals and the **GOTO** table for non terminals. Using
+that let's construct the table for state zero:
+
+-   A\[0, id\] = S4
+-   G\[0, E\] = G1
+-   G\[0, T\] = G8
+
+### State 1
+
+-   Follow(P) = $
+-   A\[1, +\] = S2
+-   A\[0, $\] = R1
+
+### State 2
+
+-   G\[2, T\] = G3
+-   A\[2, id\] = S4
+
+### State 3
+
+-   Follow(E) = {$, ), +}
+-   A\[3, $\] = R2
+-   A\[3, )\] = R2
+-   A\[3, +\] = R2
+
+### State 4
+
+-   Follow(T) = {$, ), +}
+-   A\[4, (\] = S5
+-   A\[4, $\] = R5
+-   A\[4, )\] = R5
+-   A\[4, +\] = R5
+
+### State 5
+
+-   A\[5, id\] = S4
+-   G\[5, E\] = G6
+-   G\[5, T\] = G8
+
+### State 6
+
+-   A\[6, +\] = S2
+-   A\[6, )\] = S7
+
+### State 7
+
+-   Follow(T) = {$, ), +}
+-   A\[7, $\] = R4
+-   A\[7, )\] = R4
+-   A\[7, +\] = R4
+
+### State 8
+
+-   Follow(E) = {$, ), +}
+-   A\[8, $\] = R3
+-   A\[8, +\] = R3
+-   A\[8, )\] = R3
+
+And that corresponds with the SLR parse table given in the book:
+
+todo: insert pic (SLR parse table for Grammer g10)
+
+todo: insert pic (SLR parsing algorithm)
+
+todo: insert pic (table, page 57)
+
+Let's try to follow the first four steps of the above algorithm:
+
+### Step 1
+
+-   Stack: 0
+-   Top of Stack: 0
+-   Token: id
+-   SLR parse table result = S4
+
+### Step 2
+
+-   Stack: 0 4
+-   Top of Stack: 4
+-   Token: (
+-   SLR parse table result = S5
+
+### Step 2
+
+-   Stack: 0 4 5
+-   Top of Stack 5
+-   Token: id
+-   SLR parse table result = S4
+
+### Step 3
+
+-   Stack: 0 4 5 4
+-   Top of Stack 4
+-   Token: +
+-   SLR parse table result = R5
+    -   It's reduce (T-\>id), pop state from stack.
+    -   s = top element from stack
+    -   Goto\[5, T\] = G8
+    -   New stack: 0 4 5 8
+
+## Limitation
+
+-   SLR is a subset of LR(1), and not all LR(1) grammars are SLR.
+
+todo: insert pic(page 58, g 11 grammar)
+
+-   FOLLOW(S) = {$} and FOLLOW(V) = {=\]$}
+-   In state 1, we can reduce by S -\> id or V -\> id. However, both
+    FOLLOW(S) and FOLLOW(V ) contain $, so we cannot decide which to
+    take when the next token is end-of-file. Even using the FOLLOW sets,
+    there is still a reduce-reduce conflict. Therefore, Grammar G11 is
+    not an SLR grammar
+-   But, if we look more closely at the possible sentences allowed by
+    the grammar, the distinction between the two becomes clear. Rule `S
+     -> id` would only be applied in the case where the complete
+    sentence is `id$`. If any other character follows, we apply
+    `V -> id`. So the grammar is not ambigous, we need a more powerful
+    parser.
+
+# LR(1) Parsing
+
+-   The LR(1) automaton is like the LR(0) automaton, except that each
+    item is annotated with the set of tokens that could potentially
+    follow it, given the current parsing state.
+-   This set is known as the lookahead of the item. The lookahead is
+    always a subset of the FOLLOW of the relevant non-terminal.
+
+todo: insert pic(page 59)
+
+todo: insert pic (page 60)
+
+-   Now you can see how the lookahead solves the reduce-reduce conflict.
+
+todo: inser pic (page 61)
+
+One aspect of state zero is worth clarifying. When constructing the
+closure of a state, we must consider all rules in the grammar, including
+the rule corresponding to the item under closure. The item E -\> .E + T
+is initially added with a lookahead of {$}. Then, evaluating that item,
+we add all rules that have E on the left hand side, adding a lookahead
+of {<s>}. So, we add E -\> . E + T again, this time with a lookahead of
+{</s>}, resulting in a single item with a lookahead set of {$, +}
+
+# LALR Parsing
+
+-   The main downside to LR(1) parsing is that the LR(1) automaton can
+    be much larger than the LR(0) automaton.
+-   Any two states that have the same items but differ in lookahead sets
+    for any items are considered to be different states. The result is
+    enormous parse tables that consume large amounts of memory and slow
+    down the parsing algorithm.
+-   **Lookahead LR (LALR)** parsing is the practical answer to this
+    problem.
+-   To construct an LALR parser, we first create the LR(1) automaton,
+    and then merge states that have the same core. The core of a state
+    is simply the body of an item, ignoring the lookahead.
+-   When several LR(1) items are merged into one LALR item, the LALR
+    lookahead is the union of the lookaheads of the LR(1) items.
+
+todo: insert pic (62)
+
+-   The resulting LALR automaton has the same number of states as the
+    LR(0) automaton, but has more precise lookahead information
+    available for each item.
+
+# Grammar Classes Revisited
+
+todo: insert pic (62)
+
+## CFG
+
+-   A context-free grammar is any grammar whose rules have the form A →
+
+α.
+
+-   To parse any CFG, we require a finite automaton (a parse table) and
+
+a stack to keep track of the parse state.
+
+-   An arbitrary CFG can be ambiguous. An ambiguous CFG will result in a
+    non-deterministic finite automaton, which is not practical to use.
+
+## LR(k)
+
+-   An LR(k) parser performs a bottom-up \*L\*eft to right scan of the
+    input and provides a \*R\*ight-most parse, deciding what rule to
+    apply next by examining the next `k` tokens on the input.
+-   A canonical LR(1) parser requires a very large finite automaton,
+    because the possible lookaheads are encoded into the states.
+-   While strictly a subset of CFGs, nearly all realworld language
+    constructs can be expressed adequately in LR(1).
+
+## LALR
+
+-   A Lookahead-LR parser is created by first constructing a canonical
+    LR(1) parser, and then merging all itemsets that have the same core.
+-   This yields a much smaller finite automaton, while retaining some
+    detailed lookahead information.
+-   While less powerful than canonical LR(1) in theory, LALR is usually
+    sufficient to express real-world languages.
+
+## SLR
+
+-   A Simple-LR parser approximates an LR(1) parser by constructing the
+    LR(0) state machine, and then relying on the FIRST and FOLLOW sets
+    to select which rule to apply.
+-   SLR is simple and compact, but there are easy-to-find examples of
+    common constructs that it cannot parse.
+
+## LL(k)
+
+-   An LL(k) parser performs a top-down \*L\*eft to right scan of the
+    input and provides a \*L\*eft-most parse, deciding what rule to
+    apply next by examining the next `k` tokens on the input.
+-   LL(1) parsers are simple and widely used because they require a
+    table that is only O(nt) where t is the number of tokens, and n is
+    the number of non-terminals
+-   LL(k) parsers are less practical for k \> 1 because the size of the
+    parse table is O(n (t<sup>k</sup>) ) in the worst case.
+-   They often require that a grammar be rewritten to be more amenable
+    to the parser, and are not able to express all common language
+    structures.
+
+# The Chomsky Hierarchy
+
+-   Named after noted linguist Noam Chomsky.
+-   The hierarchy describes four categories of languages (and
+    corresponding grammars) and relates them to the abstract computing
+    machinery necessary to recognize such a language.
+
+todo: insert pic (page 64)
+
+## Regular Languages
+
+-   Regular languages are those described by regular expressions.
+-   Every regular expression corresponds to a finite automaton that can
+    be used to identify all words in the corresponding language.
+-   As you know, a finite automaton can be implemented with the very
+    simple mechanism of a table and a single integer to represent the
+    current state. So, a scanner for a regular language is very easy to
+    implement efficiently.
+
+## Context Free languages
+
+-   Context free languages are those described by context free grammars
+    where each rule is of the form A → γ, with a single non-terminal on
+    the left hand side, and a mix of terminals and non-terminals on the
+    right hand side.
+-   We call these “context free” because the meaning of a non-terminal
+    is the same in all places where it appears.
+-   As you have learned in this chapter, a CFG requires a pushdown
+    automaton, which is achieved by coupling a finite automaton with a
+    stack.
+
+## Context sensitive languages
+
+-   Context sensitive languages are those described by context sensitive
+    grammars where each rule can be of the form αAβ → αγβ.
+-   We call these “context sensitive” because the interpretation of a
+    non-terminal is controlled by context in which it appears.
+-   Context sensitive languages require a non-deterministic linear
+    bounded automaton, which is bounded in memory consumption, but not
+    in execution time.
+-   Context sensitive languages are not very practical for computer
+    languages.
+
+## Recursively enumerable languages
+
+-   Are the least restrictive set of languages, described by rules of
+    the form α → β where α and β can be any combination of terminals and
+    non-terminals.
+-   These languages can only be recognized by a full Turing machine, and
+    are the least practical of all.
+
+The Chomsky Hierarchy is a specific example of a more general principle
+for the design of languages and compilers:
+
+**The least powerful language gives the strongest guarantees.**
+
+That is to say, if we have a problem to be solved, it should be attacked
+using the least expressive tool that is capable of addressing the
+problem. If we can solve a given problem by employing REs instead of
+CFGs, then we should use REs, because they consume less state, have
+simpler machinery, and present fewer roadblocks to a solution.
+
+The same advice applies more broadly: assembly language is the most
+powerful language available in our toolbox and is capable of expressing
+any program that the computer is capable of executing. However, assembly
+language is also the most difficult to use because it gives none of the
+guarantees found in higher level languages. Higher level languages are
+less powerful than assembly language, and this is what makes them more
+predictable, reliable, and congenial to use.

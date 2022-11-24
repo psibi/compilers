@@ -75,7 +75,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="chapter1.html"><strong aria-hidden="true">1.</strong> Chapter 1: Introduction</a></li><li class="chapter-item expanded "><a href="chapter2.html"><strong aria-hidden="true">2.</strong> Chapter 2: A Quick Tour</a></li><li class="chapter-item expanded "><a href="chapter3.html" class="active"><strong aria-hidden="true">3.</strong> Chapter 3: Scanning</a></li><li class="chapter-item expanded "><a href="chapter4.html"><strong aria-hidden="true">4.</strong> Chapter 4: Parsing</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="chapter1.html"><strong aria-hidden="true">1.</strong> Chapter 1: Introduction</a></li><li class="chapter-item expanded "><a href="chapter2.html"><strong aria-hidden="true">2.</strong> Chapter 2: A Quick Tour</a></li><li class="chapter-item expanded "><a href="chapter3.html" class="active"><strong aria-hidden="true">3.</strong> Chapter 3: Scanning</a></li><li class="chapter-item expanded "><a href="chapter4.html"><strong aria-hidden="true">4.</strong> Chapter 4: Parsing</a></li><li class="chapter-item expanded "><a href="chapter5.html"><strong aria-hidden="true">5.</strong> Chapter 5: Parsing in Practice</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -411,7 +411,92 @@ produces regular C code that can then be compiled in the normal way.</p>
 <code>yywrap()</code> which returns 1 to indicate that the input is complete at the
 end of the file. If we wanted to continue scanning in another file, then
 <code>yywrap()</code> would open the next file and return 0.</p>
-<pre><code class="language-bash">ls /
+<h2 id="syntax"><a class="header" href="#syntax">Syntax</a></h2>
+<ul>
+<li>The regular expression language accepted by Flex is very similar to
+that of formal regular expressions discussed above.</li>
+<li>The main difference is that characters that have special meaning
+with a regular expression (like parentheses, square brackets, and
+asterisks) must be escaped with a backslash or surrounded with
+double quotes.</li>
+<li>Also, a period (.) can be used to match any character at all, which
+is helpful for catching error conditions.</li>
+</ul>
+<h2 id="other-details"><a class="header" href="#other-details">Other details</a></h2>
+<ul>
+<li>Flex generates the scanner code, but not a complete program, so you
+must write a main function to go with it.</li>
+<li>The main program must declar as
+<a href="https://stackoverflow.com/questions/856636/effects-of-the-extern-keyword-on-c-functions"><strong>extern</strong></a>
+the symbols it expects to use in the generated scanner code:
+<ul>
+<li><code>yyin</code> is the file from which text will be read</li>
+<li><code>yylex</code> is the function that implements the scanner</li>
+<li>array <code>yytext</code> contains the actual text of each token discovered</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-bash">flex -o scanner.c scanner.flex
+</code></pre>
+<h2 id="source-code"><a class="header" href="#source-code">Source code</a></h2>
+<p>Filename: token.h</p>
+<pre><code class="language-c">typedef enum {
+  TOKEN_EOF=0,
+  TOKEN_WHILE,
+  TOKEN_ADD,
+  TOKEN_IDENT,
+  TOKEN_NUMBER,
+  TOKEN_ERROR
+} token_t;
+</code></pre>
+<p>Filename: scanner.flex</p>
+<pre><code class="language-c">%{
+#include &quot;token.h&quot;
+%}
+DIGIT  [0-9]
+LETTER [a-zA-Z]
+%%
+(&quot; &quot;|\t|\n) /* skip whitespace */
+\+        { return TOKEN_ADD; }
+while     { return TOKEN_WHILE; }
+{LETTER}+ { return TOKEN_IDENT; }
+{DIGIT}+  { return TOKEN_NUMBER; }
+.         { return TOKEN_ERROR; }
+%%
+int yywrap() { return 1; }
+</code></pre>
+<p>Filename: main.c</p>
+<pre><code class="language-c">#include &quot;token.h&quot;
+#include &lt;stdio.h&gt;
+
+extern FILE *yyin;
+extern int yylex();
+extern char *yytext;
+
+int main() {
+  /* yyin = fopen(&quot;program.c&quot;,&quot;r&quot;); */
+  FILE *yyin = stdin;
+  if(!yyin) {
+    printf(&quot;could not open program.c!\n&quot;);
+    return 1;
+  }
+  while(1) {
+    token_t t = yylex();
+    if(t==TOKEN_EOF) break;
+    printf(&quot;token: %d text: %s\n&quot;,t,yytext);
+  }
+}
+</code></pre>
+<p>Sample session:</p>
+<pre><code class="language-bash">❯ ./one
+hello world 32234
+token: 3 text: hello
+token: 3 text: world
+token: 4 text: 32234
+fooboar
+token: 3 text: fooboar
+   3
+token: 4 text: 3
 </code></pre>
 
                     </main>
