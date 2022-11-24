@@ -500,7 +500,7 @@ possible cases:
 <li>These decisions are encoded in <strong>SLR parse tables</strong> which are
 historically known as <strong>GOTO</strong> and <strong>ACTION</strong>.</li>
 </ul>
-<p>todo: insert picture (SLR parse table creation)</p>
+<p><a href="./images/c4_slr_parse_table_creation.png"><img src="./images/c4_slr_parse_table_creation.png" alt="" /></a></p>
 <p>Let's follow the above algorithm to construct SLR parse table ourselves
 for grammar <em>G</em><sub>10</sub>. Some conventions to keep in mind:</p>
 <ul>
@@ -571,9 +571,9 @@ that let's construct the table for state zero:</p>
 <li>A[8, )] = R3</li>
 </ul>
 <p>And that corresponds with the SLR parse table given in the book:</p>
-<p>todo: insert pic (SLR parse table for Grammer g10)</p>
-<p>todo: insert pic (SLR parsing algorithm)</p>
-<p>todo: insert pic (table, page 57)</p>
+<p><a href="./images/c4_slr_parse_table.png"><img src="./images/c4_slr_parse_table.png" alt="" /></a></p>
+<p><a href="./images/c4_slr_parse_algorithm.png"><img src="./images/c4_slr_parse_algorithm.png" alt="" /></a></p>
+<p><a href="./images/c4_slr_parse.png"><img src="./images/c4_slr_parse.png" alt="" /></a></p>
 <p>Let's try to follow the first four steps of the above algorithm:</p>
 <h3 id="step-1"><a class="header" href="#step-1">Step 1</a></h3>
 <ul>
@@ -614,7 +614,7 @@ that let's construct the table for state zero:</p>
 <ul>
 <li>SLR is a subset of LR(1), and not all LR(1) grammars are SLR.</li>
 </ul>
-<p>todo: insert pic(page 58, g 11 grammar)</p>
+<p><a href="./images/c4_g11.png"><img src="./images/c4_g11.png" alt="" /></a></p>
 <ul>
 <li>FOLLOW(S) = {$} and FOLLOW(V) = {=]$}</li>
 <li>In state 1, we can reduce by S -&gt; id or V -&gt; id. However, both
@@ -636,12 +636,12 @@ follow it, given the current parsing state.</li>
 <li>This set is known as the lookahead of the item. The lookahead is
 always a subset of the FOLLOW of the relevant non-terminal.</li>
 </ul>
-<p>todo: insert pic(page 59)</p>
-<p>todo: insert pic (page 60)</p>
+<p><a href="./images/c4_lr1.png"><img src="./images/c4_lr1.png" alt="" /></a></p>
+<p><a href="./images/c4_lr1_2.png"><img src="./images/c4_lr1_2.png" alt="" /></a></p>
 <ul>
 <li>Now you can see how the lookahead solves the reduce-reduce conflict.</li>
 </ul>
-<p>todo: inser pic (page 61)</p>
+<p><a href="./images/c4_lr1_automaton.png"><img src="./images/c4_lr1_automaton.png" alt="" /></a></p>
 <p>One aspect of state zero is worth clarifying. When constructing the
 closure of a state, we must consider all rules in the grammar, including
 the rule corresponding to the item under closure. The item E -&gt; .E + T
@@ -665,14 +665,14 @@ is simply the body of an item, ignoring the lookahead.</li>
 <li>When several LR(1) items are merged into one LALR item, the LALR
 lookahead is the union of the lookaheads of the LR(1) items.</li>
 </ul>
-<p>todo: insert pic (62)</p>
+<p><a href="./images/c4_lalr.png"><img src="./images/c4_lalr.png" alt="" /></a></p>
 <ul>
 <li>The resulting LALR automaton has the same number of states as the
 LR(0) automaton, but has more precise lookahead information
 available for each item.</li>
 </ul>
 <h1 id="grammar-classes-revisited"><a class="header" href="#grammar-classes-revisited">Grammar Classes Revisited</a></h1>
-<p>todo: insert pic (62)</p>
+<p><a href="./images/c4_grammars.png"><img src="./images/c4_grammars.png" alt="" /></a></p>
 <h2 id="cfg"><a class="header" href="#cfg">CFG</a></h2>
 <ul>
 <li>A context-free grammar is any grammar whose rules have the form A →</li>
