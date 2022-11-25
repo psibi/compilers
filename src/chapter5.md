@@ -97,3 +97,82 @@ Filename: main.c
 ``` c
 {{#include code/c4/validator/main.c}}
 ```
+
+todo: insert pic (page 72)
+
+``` c
+expr : expr TOKEN_PLUS term { $$ = $1 + $3; }
+```
+
+-   **$$** is the result
+-   **$n** is the n-th term in the syntax rule.
+
+In our above example, `$1` refers to `expr` and `$3` refers to `term`.
+
+Now let's write the interpreter for the above grammar.
+
+Filename: parser.bison
+
+``` c
+{{#include code/c4/interpreter/parser.bison:22:34}}
+```
+
+Filename: main.c
+
+``` c
+{{#include code/c4/interpreter/main.c}}
+```
+
+# Expression Trees
+
+-   In our previous implementation, we are computing results in the
+    middle of parsing the input.
+-   The above approach has disadvantage: What if parse error happens
+    later, our computation is wasted. It is generally more desirable to
+    find all parse errors before execution.
+-   To fix this, we will add a new stage to the interpreter. Instead of
+    computing values outright, we will construct a data structure known
+    as the **abstract syntax tree** to represent the expression.
+-   Once the AST is created, we can traverse the tree to check, execute,
+    and translate the program as needed.
+
+Filename: expr.h
+
+``` c
+{{#include code/c4/tree/expr.h}}
+```
+
+Filename: expr.c
+
+``` c
+{{#include code/c4/tree/expr.c}}
+```
+
+Filename: parser.bison
+
+``` c
+{{#include code/c4/tree/parser.bison}}
+```
+
+Some notes about the above code:
+
+-   We explicitly define the **semantic type** by setting the macro
+    **YYSTYPE** to `struct expr*`. This causes Bison to use `struct expr
+     *` as the internal type everywhere a semantic value such as $$ or
+    $1 is used. The final parser result must have the same semantic
+    type, of course.
+-   The final parser result must have the same semantic type, of course.
+
+todo: insert pic (page 79)
+
+-   Parentheses are not directly represented in the AST. Instead, they
+    have the effect of ordering the nodes in the tree to achieve the
+    desired evaluation order.
+
+todo: insert pic (page 79)
+
+Filename: main.c
+
+``` c
+{{#include code/c4/tree/main.c}}
+```
