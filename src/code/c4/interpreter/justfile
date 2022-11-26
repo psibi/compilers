@@ -1,0 +1,15 @@
+# List all recipies
+default:
+    just --list --unsorted
+
+# Run Bison
+bison:
+    bison --defines=token.h --output=parser.c parser.bison
+
+# flex
+flex:
+    flex -o scanner.c scanner.flex
+
+# Produce executable
+main: flex bison
+    gcc main.c scanner.c parser.c -o a.out
