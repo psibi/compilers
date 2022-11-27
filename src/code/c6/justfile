@@ -17,4 +17,10 @@ main-flex: flex
 
 # Produce executable
 main: flex bison
-    gcc main.c scanner.c parser.c -o a.out
+    gcc main.c scanner.c parser.c -o main
+
+# Test code
+test:
+    ./main ./test/declaration.bminor > ./test/declaration.got
+    diff -w ./test/declaration.expected ./test/declaration.got
+    echo "Test successful"
