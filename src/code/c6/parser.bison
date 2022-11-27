@@ -6,7 +6,7 @@
 #include "decl.c"
 
 int yylex();
-struct decl* parser_result = 0;
+struct decl* parser_result;
 extern char* yytext;
 void yyerror (char const *s) {
     fprintf (stderr, "%s\n", s);
