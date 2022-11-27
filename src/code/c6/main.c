@@ -47,9 +47,9 @@ int main()
 {
   if(yyparse()==0) {
     printf("Parse successful!\n");
-    int result = expr_evaluate(parser_result);
-    printf("Result of expression: %d \n", result);
-    expr_print(parser_result);
+    /* int result = expr_evaluate(parser_result); */
+    /* printf("Result of expression: %d \n", result); */
+    /* expr_print(parser_result); */
   } else {
     printf("Parse failed.\n");
   }

@@ -10,6 +10,11 @@ bison:
 flex:
     flex -o scanner.c scanner.flex
 
+# flex based binary. To debug tokens.
+main-flex: flex
+    gcc scan_main.c scanner.c -o scanner
+
+
 # Produce executable
 main: flex bison
     gcc main.c scanner.c parser.c -o a.out
