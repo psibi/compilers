@@ -22,6 +22,7 @@ void yyerror (char const *s) {
 %token TOKEN_SEMI
 %token TOKEN_ERROR
 %token TOKEN_COLON
+%token TOKEN_EQUAL
 %token TOKEN_TYPE_BOOLEAN
 %token TOKEN_TYPE_STRING
 %token TOKEN_IDENTIFIER
@@ -56,6 +57,7 @@ decl_list:      decl { $$ = $1;}
 |       decl decl_list { $$ = $1, $1->next = $2;}
         ;
 decl:           identifier TOKEN_COLON atomic_type TOKEN_SEMI { $$ = decl_create($1, $3, NULL, NULL);}
+                /* identifier TOKEN_COLON atomic_type TOKEN_EQUAL identifier TOKEN_SEMI { $$ = decl_create($1, $3, NULL, NULL);} */
         ;
 identifier:     TOKEN_IDENTIFIER { $$ = strdup(yytext); }
         ;

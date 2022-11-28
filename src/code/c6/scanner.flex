@@ -16,6 +16,7 @@ LETTER [a-zA-Z]
 \)        { return TOKEN_RPAREN; }
 \;        { return TOKEN_SEMI; }
 :        { return TOKEN_COLON; }
+\=       { return TOKEN_EQUAL; }
 {LETTER}+ { return TOKEN_IDENTIFIER; }
 .         { return TOKEN_ERROR; }
 %%
