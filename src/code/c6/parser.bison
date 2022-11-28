@@ -33,13 +33,13 @@ void yyerror (char const *s) {
     char *name;
 };
 
-%type   <decl> program decl
+%type   <decl> program decl decl_list
 %type   <expr> expr term factor
 %type   <type>          atomic_type
 %type   <name> identifier
 
 %%
-program : decl { parser_result = $1; }
+program : decl_list { parser_result = $1; }
 ;
 expr : expr TOKEN_PLUS term { $$ = expr_create(EXPR_ADD, $1, $3); }
      | expr TOKEN_MINUS term { $$ = expr_create(EXPR_SUBTRACT, $1, $3); }
@@ -52,7 +52,10 @@ term : term TOKEN_MUL factor { $$ = expr_create(EXPR_MULTIPLY, $1, $3); }
 factor: TOKEN_MINUS factor { $$ = expr_create(EXPR_SUBTRACT, expr_create_value(0), $2); }
       | TOKEN_LPAREN expr TOKEN_RPAREN { $$ = $2; }
       | TOKEN_INT { $$ = expr_create_value(atoi(yytext)); }
-decl:           identifier TOKEN_COLON atomic_type { $$ = decl_create($1, $3, NULL, NULL);}
+decl_list:      decl { $$ = $1;}
+|       decl decl_list { $$ = $1, $1->next = $2;}
+        ;
+decl:           identifier TOKEN_COLON atomic_type TOKEN_SEMI { $$ = decl_create($1, $3, NULL, NULL);}
         ;
 identifier:     TOKEN_IDENTIFIER { $$ = strdup(yytext); }
         ;

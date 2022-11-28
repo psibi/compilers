@@ -1,1 +1,2 @@
-b: boolean
+b: boolean;
+str: string;

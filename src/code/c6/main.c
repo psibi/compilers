@@ -51,13 +51,14 @@ void type_print(type_t kind) {
     case TYPE_BOOLEAN: printf("boolean"); break;
     case TYPE_STRING: printf("string"); break;
   }
-  printf(")");
+  printf(")\n");
 }
 
 void decl_print(struct decl *d) {
   if (!d) return;
   printf("%s", d->name);
   type_print(d->type->kind);
+  decl_print(d->next);
 }
 
 int main(int argc, char *argv[])
