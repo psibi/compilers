@@ -6,6 +6,7 @@ typedef enum {
   EXPR_NAME,
   EXPR_INTEGER_LITERAL,
   EXPR_STRING_LITERAL,
+  EXPR_CHAR_LITERAL,
   EXPR_BOOLEAN,
 } expr_t;
 

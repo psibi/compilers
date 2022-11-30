@@ -5,3 +5,4 @@ i2: integer = 3;
 str2: string = "hello_world\n";
 b2: boolean = false;
 b3: boolean = true;
+c1: char = 'q';

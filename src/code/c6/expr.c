@@ -40,6 +40,12 @@ struct expr* expr_create_string_literal( const char *string_literal )
   return e;
 }
 
+struct expr *expr_create_char(int char_ascii) {
+  struct expr* e = expr_create(EXPR_CHAR_LITERAL, NULL, NULL);
+  e->integer_value = char_ascii;
+  return e;
+}
+
 void expr_print(struct expr *e) {
   if (!e)
     return;
@@ -48,6 +54,9 @@ void expr_print(struct expr *e) {
   switch (e->kind) {
   case EXPR_NAME:
     printf("%s", e->name);
+    break;
+  case EXPR_CHAR_LITERAL:
+    printf("%c", e->integer_value);
     break;
   case EXPR_BOOLEAN:
     if (e->integer_value == 0) {

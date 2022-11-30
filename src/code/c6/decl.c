@@ -38,6 +38,9 @@ struct param_list *param_list_create(char *name, struct type *type, struct param
 void type_print(type_t kind) {
   printf(" (");
   switch (kind) {
+  case TYPE_CHARACTER:
+    printf("char");
+    break;
   case TYPE_BOOLEAN:
     printf("boolean");
     break;

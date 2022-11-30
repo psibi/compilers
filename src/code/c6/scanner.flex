@@ -12,6 +12,7 @@ LETTER [a-zA-Z]
 "boolean"                  { return TOKEN_TYPE_BOOLEAN;  }
 "string"                   { return TOKEN_TYPE_STRING;   }
 "integer"                  { return TOKEN_TYPE_INTEGER;  }
+char                       { return TOKEN_TYPE_CHAR;     }
 true                       { return TOKEN_BOOL_TRUE;     }
 false                      { return TOKEN_BOOL_FALSE;    }
 \+                         { return TOKEN_PLUS;          }
@@ -29,6 +30,14 @@ false                      { return TOKEN_BOOL_FALSE;    }
     return TOKEN_ERROR;
                                                          }
   else return TOKEN_STRING_LITERAL;
+}
+\'.\' {
+  int len = strlen(yytext);
+  if (len != 3) {
+    fprintf(stderr, "Invalid character of length %d: %s \n", len, yytext);
+    return TOKEN_ERROR;
+  }
+  return TOKEN_CHAR_LITERAL;
 }
 {LETTER}+{DIGIT}*{LETTER}* { return TOKEN_IDENTIFIER;    }
 .                          { return TOKEN_ERROR;         }
