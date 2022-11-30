@@ -15,15 +15,15 @@ int expr_evaluate(struct expr *e) {
   int r = expr_evaluate(e->right);
 
   switch (e->kind) {
-  case EXPR_VALUE:
-    return e->value;
+  case EXPR_INTEGER_LITERAL:
+    return e->integer_value;
   case EXPR_ADD:
     return l + r;
-  case EXPR_SUBTRACT:
+  case EXPR_SUB:
     return l - r;
-  case EXPR_MULTIPLY:
+  case EXPR_MUL:
     return l * r;
-  case EXPR_DIVIDE:
+  case EXPR_DIV:
     if (r == 0) {
       printf("error: divide by zero\n");
       exit(1);
@@ -39,19 +39,19 @@ void expr_print(struct expr *e) {
   printf("(");
   expr_print(e->left);
   switch (e->kind) {
-  case EXPR_VALUE:
-    printf("%d", e->value);
+  case EXPR_INTEGER_LITERAL:
+    printf("%d", e->integer_value);
     break;
   case EXPR_ADD:
     printf("+");
     break;
-  case EXPR_SUBTRACT:
+  case EXPR_SUB:
     printf("-");
     break;
-  case EXPR_MULTIPLY:
+  case EXPR_MUL:
     printf("*");
     break;
-  case EXPR_DIVIDE:
+  case EXPR_DIV:
     printf("/");
     break;
   }

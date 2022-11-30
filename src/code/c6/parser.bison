@@ -43,20 +43,20 @@ void yyerror (char const *s) {
 program : decl_list { parser_result = $1; }
 ;
 expr : expr TOKEN_PLUS term { $$ = expr_create(EXPR_ADD, $1, $3); }
-     | expr TOKEN_MINUS term { $$ = expr_create(EXPR_SUBTRACT, $1, $3); }
+     | expr TOKEN_MINUS term { $$ = expr_create(EXPR_SUB, $1, $3); }
      | term { $$ = $1; }
 ;
-term : term TOKEN_MUL factor { $$ = expr_create(EXPR_MULTIPLY, $1, $3); }
-     | term TOKEN_DIV factor { $$ = expr_create(EXPR_DIVIDE, $1, $3); }
+term : term TOKEN_MUL factor { $$ = expr_create(EXPR_MUL, $1, $3); }
+     | term TOKEN_DIV factor { $$ = expr_create(EXPR_DIV, $1, $3); }
      | factor { $$ = $1; }
 ;
-factor: TOKEN_MINUS factor { $$ = expr_create(EXPR_SUBTRACT, expr_create_value(0), $2); }
+factor: TOKEN_MINUS factor { $$ = expr_create(EXPR_SUB, expr_create_integer_literal(0), $2); }
       | TOKEN_LPAREN expr TOKEN_RPAREN { $$ = $2; }
-      | TOKEN_INT { $$ = expr_create_value(atoi(yytext)); }
+      | TOKEN_INT { $$ = expr_create_integer_literal(atoi(yytext)); }
 decl_list:      decl { $$ = $1;}
 |       decl decl_list { $$ = $1, $1->next = $2;}
         ;
-decl:           identifier TOKEN_COLON atomic_type TOKEN_SEMI { $$ = decl_create($1, $3, NULL, NULL);}
+decl:           identifier TOKEN_COLON atomic_type TOKEN_SEMI { $$ = decl_create($1, $3, NULL, NULL, NULL);}
                 /* identifier TOKEN_COLON atomic_type TOKEN_EQUAL identifier TOKEN_SEMI { $$ = decl_create($1, $3, NULL, NULL);} */
         ;
 identifier:     TOKEN_IDENTIFIER { $$ = strdup(yytext); }
