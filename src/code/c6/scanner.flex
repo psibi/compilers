@@ -8,6 +8,7 @@ LETTER [a-zA-Z]
 {DIGIT}+  { return TOKEN_INT; }
 "boolean" { return TOKEN_TYPE_BOOLEAN; }
 "string" { return TOKEN_TYPE_STRING; }
+"integer" { return TOKEN_TYPE_INTEGER; }
 \+        { return TOKEN_PLUS; }
 \-        { return TOKEN_MINUS; }
 \*        { return TOKEN_MUL; }

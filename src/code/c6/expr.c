@@ -25,3 +25,10 @@ struct expr* expr_create_name( const char *name )
   e->name = name;
   return e;
 }
+
+struct expr* expr_create_string_literal( const char *string_literal )
+{
+  struct expr* e = expr_create(EXPR_STRING_LITERAL, NULL, NULL);
+  e->string_literal = string_literal;
+  return e;
+}

@@ -15,6 +15,10 @@ int expr_evaluate(struct expr *e) {
   int r = expr_evaluate(e->right);
 
   switch (e->kind) {
+  case EXPR_NAME:
+    return -2;
+  case EXPR_STRING_LITERAL:
+    return -1;
   case EXPR_INTEGER_LITERAL:
     return e->integer_value;
   case EXPR_ADD:
@@ -39,6 +43,12 @@ void expr_print(struct expr *e) {
   printf("(");
   expr_print(e->left);
   switch (e->kind) {
+  case EXPR_NAME:
+    printf("%s", e->name);
+    break;
+  case EXPR_STRING_LITERAL:
+    printf("%s", e->string_literal);
+    break;
   case EXPR_INTEGER_LITERAL:
     printf("%d", e->integer_value);
     break;
@@ -64,6 +74,9 @@ void type_print(type_t kind) {
   switch (kind) {
   case TYPE_BOOLEAN:
     printf("boolean");
+    break;
+  case TYPE_INTEGER:
+    printf("integer");
     break;
   case TYPE_STRING:
     printf("string");

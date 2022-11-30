@@ -4,7 +4,8 @@ typedef enum {
   EXPR_DIV,
   EXPR_MUL,
   EXPR_NAME,
-  EXPR_INTEGER_LITERAL
+  EXPR_INTEGER_LITERAL,
+  EXPR_STRING_LITERAL
 } expr_t;
 
 struct expr {
