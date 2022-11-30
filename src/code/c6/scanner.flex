@@ -18,6 +18,13 @@ LETTER [a-zA-Z]
 \;                         { return TOKEN_SEMI;          }
 :                          { return TOKEN_COLON;         }
 \=                         { return TOKEN_EQUAL;         }
+\".*\"                     {
+  if ((strlen(yytext)) > 160) {
+    fprintf(stderr, "string longer than 160 characters\n");
+    return TOKEN_ERROR;
+  }
+  else return TOKEN_STRING_LITERAL;
+}
 {LETTER}+{DIGIT}*{LETTER}* { return TOKEN_IDENTIFIER;    }
 .                          { return TOKEN_ERROR;         }
 %%
