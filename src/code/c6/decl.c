@@ -1,5 +1,8 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "decl.h"
+
+extern void expr_print(struct expr *e);
 
 struct decl * decl_create( char *name,
                            struct type *type,
@@ -30,4 +33,30 @@ struct param_list *param_list_create(char *name, struct type *type, struct param
   p->type = type;
   p->next = next;
   return p;
+}
+
+void type_print(type_t kind) {
+  printf(" (");
+  switch (kind) {
+  case TYPE_BOOLEAN:
+    printf("boolean");
+    break;
+  case TYPE_INTEGER:
+    printf("integer");
+    break;
+  case TYPE_STRING:
+    printf("string");
+    break;
+  }
+  printf(")");
+}
+
+void decl_print(struct decl *d) {
+  if (!d)
+    return;
+  printf("%s", d->name);
+  type_print(d->type->kind);
+  expr_print(d->value);
+  printf("\n");
+  decl_print(d->next);
 }

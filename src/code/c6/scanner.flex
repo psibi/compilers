@@ -18,7 +18,7 @@ LETTER [a-zA-Z]
 \;        { return TOKEN_SEMI; }
 :        { return TOKEN_COLON; }
 \=       { return TOKEN_EQUAL; }
-{LETTER}+ { return TOKEN_IDENTIFIER; }
+{LETTER}+{DIGIT}*{LETTER}* { return TOKEN_IDENTIFIER; }
 .         { return TOKEN_ERROR; }
 %%
 int yywrap() { return 1; }

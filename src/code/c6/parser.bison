@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "expr.c"
 #include "decl.c"
+#include "expr.c"
 
 int yylex();
 struct decl* parser_result;

@@ -5,6 +5,7 @@
 
 extern FILE *yyin;
 extern int yyparse();
+extern void decl_print(struct decl *d);
 extern struct decl *parser_result;
 
 int expr_evaluate(struct expr *e) {
@@ -35,62 +36,6 @@ int expr_evaluate(struct expr *e) {
     return l / r;
   }
   return 0;
-}
-
-void expr_print(struct expr *e) {
-  if (!e)
-    return;
-  printf("(");
-  expr_print(e->left);
-  switch (e->kind) {
-  case EXPR_NAME:
-    printf("%s", e->name);
-    break;
-  case EXPR_STRING_LITERAL:
-    printf("%s", e->string_literal);
-    break;
-  case EXPR_INTEGER_LITERAL:
-    printf("%d", e->integer_value);
-    break;
-  case EXPR_ADD:
-    printf("+");
-    break;
-  case EXPR_SUB:
-    printf("-");
-    break;
-  case EXPR_MUL:
-    printf("*");
-    break;
-  case EXPR_DIV:
-    printf("/");
-    break;
-  }
-  expr_print(e->right);
-  printf(")");
-}
-
-void type_print(type_t kind) {
-  printf(" (");
-  switch (kind) {
-  case TYPE_BOOLEAN:
-    printf("boolean");
-    break;
-  case TYPE_INTEGER:
-    printf("integer");
-    break;
-  case TYPE_STRING:
-    printf("string");
-    break;
-  }
-  printf(")\n");
-}
-
-void decl_print(struct decl *d) {
-  if (!d)
-    return;
-  printf("%s", d->name);
-  type_print(d->type->kind);
-  decl_print(d->next);
 }
 
 int main(int argc, char *argv[]) {

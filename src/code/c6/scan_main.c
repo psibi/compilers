@@ -5,9 +5,9 @@ extern FILE *yyin;
 extern int yylex();
 extern char *yytext;
 
-int main() {
-  /* yyin = fopen("program.c","r"); */
-  FILE *yyin = stdin;
+int main(int argc, char *argv[]) {
+  yyin = fopen(argv[1],"r");
+  /* FILE *yyin = stdin; */
   if(!yyin) {
     printf("could not open program.c!\n");
     return 1;
