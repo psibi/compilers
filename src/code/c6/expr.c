@@ -27,6 +27,12 @@ struct expr* expr_create_name( const char *name )
   return e;
 }
 
+struct expr* expr_create_boolean( int bool) {
+  struct expr* e = expr_create(EXPR_BOOLEAN, NULL, NULL);
+  e->integer_value = bool;
+  return e;
+}
+
 struct expr* expr_create_string_literal( const char *string_literal )
 {
   struct expr* e = expr_create(EXPR_STRING_LITERAL, NULL, NULL);
@@ -42,6 +48,13 @@ void expr_print(struct expr *e) {
   switch (e->kind) {
   case EXPR_NAME:
     printf("%s", e->name);
+    break;
+  case EXPR_BOOLEAN:
+    if (e->integer_value == 0) {
+      printf("true");
+    } else {
+      printf("false");
+    }
     break;
   case EXPR_STRING_LITERAL:
     printf("%s", e->string_literal);

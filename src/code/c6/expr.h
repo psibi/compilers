@@ -5,7 +5,8 @@ typedef enum {
   EXPR_MUL,
   EXPR_NAME,
   EXPR_INTEGER_LITERAL,
-  EXPR_STRING_LITERAL
+  EXPR_STRING_LITERAL,
+  EXPR_BOOLEAN,
 } expr_t;
 
 struct expr {

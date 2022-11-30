@@ -29,6 +29,8 @@ void yyerror (char const *s) {
 %token TOKEN_TYPE_INTEGER
 %token TOKEN_IDENTIFIER
 %token TOKEN_STRING_LITERAL
+%token TOKEN_BOOL_FALSE
+%token TOKEN_BOOL_TRUE
 
 %union {
     struct decl *decl;
@@ -38,7 +40,7 @@ void yyerror (char const *s) {
 };
 
 %type   <decl> program decl decl_list
-%type   <expr> expr int_term factor int_expr str_expr
+%type   <expr> expr int_term factor int_expr str_expr bool_expr
 %type   <type> atomic_type
 %type   <name> identifier
 
@@ -52,7 +54,9 @@ decl        : identifier TOKEN_COLON atomic_type TOKEN_SEMI { $$ = decl_create($
  | identifier TOKEN_COLON atomic_type TOKEN_EQUAL expr TOKEN_SEMI { $$ = decl_create($1, $3, $5, NULL, NULL);}
 ;
 expr        : int_expr { $$ = $1; }
- | str_expr {$$ = $1;};
+ | str_expr { $$ = $1; }
+ | bool_expr { $$ = $1; }
+;
 int_expr    : int_expr TOKEN_PLUS int_term { $$ = expr_create(EXPR_ADD, $1, $3); }
  | int_expr TOKEN_MINUS int_term { $$ = expr_create(EXPR_SUB, $1, $3); }
  | int_term { $$ = $1; }
@@ -66,6 +70,8 @@ factor      : TOKEN_MINUS factor { $$ = expr_create(EXPR_SUB, expr_create_intege
  | TOKEN_INT { $$ = expr_create_integer_literal(atoi(yytext)); }
 str_expr    : TOKEN_STRING_LITERAL { $$ = expr_create_string_literal(strdup(yytext));}
 ;
+bool_expr   : TOKEN_BOOL_TRUE { $$ = expr_create_boolean(0);}
+ | TOKEN_BOOL_FALSE { $$ = expr_create_boolean(-1);}
 identifier  : TOKEN_IDENTIFIER { $$ = strdup(yytext); }
 ;
 atomic_type : TOKEN_TYPE_BOOLEAN { $$ = type_create(TYPE_BOOLEAN, NULL, NULL); }
